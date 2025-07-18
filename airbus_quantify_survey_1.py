@@ -86,7 +86,6 @@ def create_closure_visualization():
     **Instructions:**
     - Slide left to create a smaller arc
     - Slide right to create a more closed shape
-    - Stop when you perceive it as a circle
     """)
 
     # Slider: Value maps to how 'closed' the circle appears
@@ -156,7 +155,7 @@ def create_continuity_visualization():
         max_value=100,
         value=50,
         key="gestalt_continuity_slider",
-        help=f"Slide to adjust alignment. Range: {MAX_PIXEL_OFFSET}px (random) to 0px (perfect)"
+        help=f"Slide to adjust alignment. Stop when you perceive the circles as aligned."
     )
     
     # Calculate current pixel offset
@@ -210,6 +209,69 @@ def create_continuity_visualization():
     ax.set_aspect('equal')
     
     st.pyplot(fig, clear_figure=True)
+
+def create_proximity_visualization():
+    """Interactive visualization for Law of Proximity"""
+    st.subheader("3. Law of Proximity")
+    st.markdown(f"""
+    **Instructions:**
+    - At minimum setting the circles are clearly separated
+    - At maximum setting the circles are clearly grouped
+    """)
+    
+    # Constants
+    DPI = 100
+    FIG_SIZE = 5            # Square figure (inches)
+    CIRCLE_RADIUS = 0.15    # Fixed size for all circles
+    
+    # Configuration
+    MAX_PIXEL_DISTANCE = 350  # Maximum distance at slider=1 (spread apart)
+    MIN_PIXEL_DISTANCE = 150  # Minimum distance at slider=100 (tightly grouped)
+    
+    proximity_value = st.slider(
+        "Adjust the slider until the circles appear to form a cohesive group:",
+        min_value=1,
+        max_value=100,
+        value=50,
+        key="gestalt_proximity_slider",
+        help=f"Slide to adjust the distance between the circles. Stop when you perceive it as grouped by proximity."
+    )
+    
+    # Calculate current distance in pixels and figure coordinates
+    current_px_dist = MIN_PIXEL_DISTANCE + (MAX_PIXEL_DISTANCE - MIN_PIXEL_DISTANCE) * (1 - proximity_value/100)
+    fig_dist = current_px_dist / (FIG_SIZE * DPI)
+    
+    # Create visualization
+    fig, ax = plt.subplots(figsize=(FIG_SIZE, FIG_SIZE), dpi=DPI)
+    
+    # Position 4 circles in a square formation
+    positions = [
+        (0.5 - fig_dist/2, 0.5 - fig_dist/2),  # Bottom-left
+        (0.5 + fig_dist/2, 0.5 - fig_dist/2),  # Bottom-right
+        (0.5 - fig_dist/2, 0.5 + fig_dist/2),  # Top-left
+        (0.5 + fig_dist/2, 0.5 + fig_dist/2)   # Top-right
+    ]
+    
+    for (x, y) in positions:
+        circle = plt.Circle(
+            (x, y), 
+            CIRCLE_RADIUS,
+            color='black',
+            fill=False,
+            linewidth=2
+        )
+        ax.add_patch(circle)
+    
+    # Store responses
+    st.session_state.responses["gestalt_proximity_value"] = proximity_value
+    st.session_state.responses["gestalt_proximity_px"] = current_px_dist
+    
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    ax.set_aspect('equal')
+    
+    st.pyplot(fig, clear_figure=True)
     
 def main():
     # Survey Header
@@ -256,6 +318,7 @@ def main():
         # Initialization of visualization
         create_closure_visualization()
         create_continuity_visualization()
+        create_proximity_visualization()
         
         # Start the form for all other questions
         with st.form("design_survey"):

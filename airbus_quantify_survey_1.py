@@ -17,6 +17,8 @@ EMAIL_USERNAME = 'itsffworldno5@gmail.com'
 EMAIL_PASSWORD = 'vzcejhcgtwwcbhia'
 RECIPIENT_EMAIL = 'dhifan.akbar@tum.de'
 
+st.set_page_config(page_title="Quantification Survey", layout="centered")
+
 # Initialize session state for survey responses
 if 'responses' not in st.session_state:
     st.session_state.responses = {}

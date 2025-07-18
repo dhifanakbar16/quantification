@@ -539,8 +539,8 @@ def create_symmetry_visualization():
         "gestalt_symmetry_avg_radial_error": f"{np.mean([avg_x_offset, avg_y_offset]):.2f}%"
     })
 
-    st.write(f"Avg X-offset from centerline: {avg_x_offset:.2f}%")
-    st.write(f"Avg Y-offset from centerline: {avg_y_offset:.2f}%")
+    st.write(f"Current avg X-offset from centerline: {avg_x_offset:.2f}%")
+    st.write(f"Current avg Y-offset from centerline: {avg_y_offset:.2f}%")
     
     ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis('off')
     st.pyplot(fig, clear_figure=True)

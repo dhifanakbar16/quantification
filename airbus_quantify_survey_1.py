@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Arc
 from matplotlib.patches import Wedge
+import time
 
 # Email configuration
 EMAIL_HOST = 'smtp.gmail.com'
@@ -546,6 +547,87 @@ def create_symmetry_visualization():
     
     ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis('off')
     st.pyplot(fig, clear_figure=True)
+
+def create_common_fate_questions():
+    st.subheader("8. Law of Common Fate")
+    st.markdown("""
+    **Principle:** Elements that share motion patterns are perceived as related.  
+    **Goal:** Identify expected behaviors for aviation display elements.
+    """)
+
+    common_fate_responses = {}
+
+    # Question template with multi-select
+    def ask_motion_direction(question, element_name, options):
+        st.write(f"**{question}**")
+        
+        # Multi-select for motion patterns
+        selected = st.multiselect(
+            f"Expected behaviors for {element_name}:",
+            options=options,
+            default=None,
+            key=f"common_fate_{element_name}"
+        )
+        
+        # Open-ended notes
+        notes = st.text_input(
+            f"Additional context for {element_name} (optional):",
+            key=f"notes_{element_name}"
+        )
+        
+        common_fate_responses[element_name] = {
+            "behaviors": selected,
+            "notes": notes
+        }
+
+    # Define standard options
+    motion_options = [
+        "⬆️ Up", "⬇️ Down", "➡️ Right", "⬅️ Left",
+        "↻ Clockwise", "↺ Counter-clockwise",
+        "💨 Expand outward", "🌀 Spiral inward",
+        "🔴 Color change (e.g., red)", "🟢 Color change (e.g., green)",
+        "🔢 Numerical update", "📈 Fill animation",
+        "🚨 Blinking alert"
+    ]
+
+    # Engine Instruments
+    ask_motion_direction(
+        "When engine RPM increases, how should the indicator respond?",
+        "Engine RPM",
+        motion_options
+    )
+
+    # Flight Instruments
+    ask_motion_direction(
+        "When altitude increases, how should the altimeter change?",
+        "Altimeter",
+        motion_options + ["📉 Tape scrolls down"]  # Add aviation-specific option
+    )
+
+    # System Indicators
+    ask_motion_direction(
+        "When hydraulic pressure drops critically, how should the warning appear?",
+        "Hydraulic Warning",
+        motion_options + ["🛑 Solid red + audible alarm"] 
+    )
+
+    # Full question list (10 total)
+    elements = [
+        ("Airspeed Indicator", "When airspeed increases..."),
+        ("Vertical Speed Indicator", "When climb rate increases..."),
+        ("Heading Indicator", "When turning right..."),
+        ("Fuel Flow", "When fuel consumption increases..."),
+        ("Flap Position", "When flaps extend..."),
+        ("Landing Gear", "When gear deploys..."),
+        ("EGT (Exhaust Gas Temp)", "When temperature exceeds limits..."),
+        ("Autopilot Status", "When engagement state changes...")
+    ]
+    
+    for element, question in elements:
+        ask_motion_direction(question, element, motion_options)
+
+    # Store responses
+    st.session_state.responses["common_fate"] = common_fate_responses
     
 def main():
     # Survey Header
@@ -597,6 +679,7 @@ def main():
         create_pragnanz_visualization()
         create_similarity_visualization()
         create_symmetry_visualization()
+        create_common_fate_questions()
         
         # Start the form for all other questions
         with st.form("design_survey"):

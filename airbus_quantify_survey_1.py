@@ -261,6 +261,9 @@ def create_proximity_visualization():
             linewidth=2
         )
         ax.add_patch(circle)
+
+    # Visual feedback
+    st.write(f"Current distance: {current_px_dist}")
     
     # Store responses
     st.session_state.responses["gestalt_proximity_value"] = proximity_value
@@ -271,6 +274,275 @@ def create_proximity_visualization():
     ax.axis('off')
     ax.set_aspect('equal')
     
+    st.pyplot(fig, clear_figure=True)
+
+def create_experience_visualization():
+    """Interactive visualization for Law of Experience"""
+    st.subheader("4. Law of Experience")
+    st.markdown(f"""
+    **Instructions:**
+    - Slide left to increase noise level
+    - Slide right to decrease noise level
+    """)
+    
+    # Configuration
+    IMAGE_PATH = "pfd.png" 
+    MAX_NOISE = 1000  # Maximum noise at slider=1 (completely hidden)
+    MIN_NOISE = 0     # Minimum noise at slider=100 (fully clear)
+    
+    experience_value = st.slider(
+        "Adjust the slider until you recognize the image:",
+        min_value=1,
+        max_value=100,
+        value=50,
+        key="gestalt_experience_slider",
+        help="Slide right to reduce noise. Stop when you recognize what it depicts."
+    )
+    
+    # Load and process image
+    img = plt.imread(IMAGE_PATH)
+    noise_level = MAX_NOISE * (1 - experience_value/100)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(5, 5))
+    
+    # Apply noise proportional to slider
+    if noise_level > 0:
+        noise = np.random.normal(0, noise_level/255, img.shape)
+        noisy_img = np.clip(img + noise, 0, 1)
+        ax.imshow(noisy_img)
+    else:
+        ax.imshow(img)
+    
+    ax.axis('off')
+
+    # Visual feedback
+    st.write(f"Current noise level: {noise_level:.2f}")
+    
+    # Store responses
+    st.session_state.responses["gestalt_experience_value"] = experience_value
+    st.session_state.responses["gestalt_experience_noise"] = f"{noise_level:.1f}%"
+    
+    st.pyplot(fig, clear_figure=True)
+
+def create_pragnanz_visualization():
+    """Interactive visualization for Law of Prägnanz (simplicity)"""
+    st.subheader("5. Law of Prägnanz (Simplicity)")
+    st.markdown(f"""
+    **Instructions:**
+    - 1: Simple circle
+    - 2: Inner circle added
+    - 3-6: Cardinal direction blades
+    - 7-10: Diagonal blades and details
+    """)
+    
+    pragnanz_value = st.slider(
+        "Adjust the slider until the shape reaches the simplest form that clearly represents an engine:",
+        min_value=1,
+        max_value=10,
+        value=5,
+        key="gestalt_pragnanz_slider",
+        help="Slide to make the shape more detailed. Stop when the shape reaches the simplest form that clearly represents an engine."
+    )
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(6, 6))
+    
+    # Base circle (always present)
+    outer_circle = plt.Circle((0.5, 0.5), 0.4, fill=False, linewidth=2)
+    ax.add_patch(outer_circle)
+    
+    # Progressive elements
+    if pragnanz_value >= 2:
+        # Inner circle
+        inner_circle = plt.Circle((0.5, 0.5), 0.1, fill=False, linewidth=2)
+        ax.add_patch(inner_circle)
+    
+    if pragnanz_value >= 3:
+        # First blade at 0°
+        ax.plot([0.5, 0.5 + 0.35], [0.5, 0.5], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 4:
+        # Second blade at 90°
+        ax.plot([0.5, 0.5], [0.5, 0.5 + 0.35], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 5:
+        # Third blade at 180°
+        ax.plot([0.5, 0.5 - 0.35], [0.5, 0.5], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 6:
+        # Fourth blade at 270°
+        ax.plot([0.5, 0.5], [0.5, 0.5 - 0.35], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 7:
+        # Fifth blade at 45°
+        x = 0.5 + 0.35 * np.cos(np.radians(45))
+        y = 0.5 + 0.35 * np.sin(np.radians(45))
+        ax.plot([0.5, x], [0.5, y], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 8:
+        # Sixth blade at 135°
+        x = 0.5 + 0.35 * np.cos(np.radians(135))
+        y = 0.5 + 0.35 * np.sin(np.radians(135))
+        ax.plot([0.5, x], [0.5, y], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 9:
+        # Seventh blade at 225°
+        x = 0.5 + 0.35 * np.cos(np.radians(225))
+        y = 0.5 + 0.35 * np.sin(np.radians(225))
+        ax.plot([0.5, x], [0.5, y], 'k-', linewidth=2)
+    
+    if pragnanz_value >= 10:
+        # Eighth blade at 315°
+        x = 0.5 + 0.35 * np.cos(np.radians(315))
+        y = 0.5 + 0.35 * np.sin(np.radians(315))
+        ax.plot([0.5, x], [0.5, y], 'k-', linewidth=2)
+        
+        # Swirl in inner circle (3 arcs)
+        for i in range(3):
+            ax.add_patch(Arc((0.5, 0.5), 0.15, 0.15, 
+                        theta1=i*120, theta2=i*120+90, 
+                        linewidth=1, color='k'))
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    ax.set_aspect('equal')
+    
+    st.pyplot(fig, clear_figure=True)
+    
+    # Store responses
+    st.session_state.responses["gestalt_pragnanz_value"] = pragnanz_value
+    st.session_state.responses["gestalt_pragnanz_complexity"] = f"Level {pragnanz_value}/10"
+
+def create_similarity_visualization():
+    """Interactive visualization for Law of Similarity"""
+    st.subheader("6. Law of Similarity")
+    st.markdown(f"""
+    **Instructions:**
+    - At 1: All shapes have random colors
+    - At 100: All shapes share the same color
+    """)
+    
+    similarity_color_value = st.slider(
+        "Adjust until the shapes appear to belong together:",
+        min_value=1,
+        max_value=100,
+        value=50,
+        key="gestalt_similarity_color_slider",
+        help="Slide to change the colors in the shapes. Stop when the shape appears to be similar."
+    )
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(6, 4))
+    
+    # Base positions for 9 shapes (3x3 grid)
+    positions = [(x, y) for x in np.linspace(0.2, 0.8, 3) 
+                     for y in np.linspace(0.2, 0.8, 3)]
+    
+    # Base color (will be mixed with random colors based on slider)
+    base_color = np.array([0.2, 0.4, 0.8])  # Blueish
+    
+    for i, (x, y) in enumerate(positions):
+        # Calculate color similarity
+        if similarity_color_value == 100:
+            color = base_color
+        else:
+            random_component = np.random.rand(3)
+            mix_ratio = 1 - (similarity_color_value/100)
+            color = base_color * (1-mix_ratio) + random_component * mix_ratio
+        
+        # Alternate between circle and square for some variety
+        if i % 2 == 0:
+            shape = plt.Circle((x, y), 0.08, color=color)
+        else:
+            shape = plt.Rectangle((x-0.08, y-0.08), 0.16, 0.16, color=color)
+        
+        ax.add_patch(shape)
+    
+    # Calculate and store similarity metric
+    color_variance = 100 - similarity_color_value
+    st.session_state.responses["gestalt_similarity_color_value"] = similarity_color_value
+    st.session_state.responses["gestalt_similarity_variance"] = f"{color_variance}%"
+
+    # Visual feedback
+    st.write(f"Current color variance: {color_variance}")
+    
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    st.pyplot(fig, clear_figure=True)
+
+def create_symmetry_visualization():
+    st.subheader("7. Law of Symmetry")
+    st.markdown("""
+    **Instructions:**
+    - At 1: Random petal arrangement
+    - At 100: Perfect radial symmetry
+    """)
+
+    symmetry_value = st.slider(
+        "Adjust until petals appear symmetrical:",
+        min_value=1, 
+        max_value=100, 
+        value=50,
+        key="gestalt_symmetry_slider",
+        help="Slide to change the position of the petals. Stop when the petals appears to be symmetrical."
+    )
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    center = (0.5, 0.5)
+    ax.plot(center[0], center[1], 'ko', markersize=5)
+
+    n_petals = 10  # Must be even
+    angles = np.linspace(0, 2*np.pi, n_petals, endpoint=False)
+    asymmetry = 1 - (symmetry_value / 100)
+    petal_positions = []
+
+    # Generate petals with controlled distortion
+    for i, angle in enumerate(angles):
+        ideal_x = center[0] + 0.4 * np.cos(angle)
+        ideal_y = center[1] + 0.4 * np.sin(angle)
+        
+        if symmetry_value < 100:
+            np.random.seed(i)
+            x = ideal_x + asymmetry * np.random.normal(0, 0.05)
+            y = ideal_y + asymmetry * np.random.normal(0, 0.05)
+        else:
+            x, y = ideal_x, ideal_y
+        
+        petal_positions.append((x, y))
+        ax.plot([center[0], x], [center[1], y], 'k-', linewidth=2)
+        ax.plot(x, y, 'ko', markersize=8)
+
+    # Calculate radial symmetry offsets
+    x_offsets = []
+    y_offsets = []
+    
+    for i in range(n_petals // 2):
+        x1, y1 = petal_positions[i]
+        x2, y2 = petal_positions[i + n_petals//2]  # 180° counterpart
+        
+        # For perfect radial symmetry:
+        # x1 + x2 should equal 2*center_x (1.0), and y1 + y2 should equal 2*center_y (1.0)
+        x_offsets.append(abs((x1 + x2) - 1.0))  # X symmetry error
+        y_offsets.append(abs((y1 + y2) - 1.0))  # Y symmetry error
+
+    avg_x_offset = np.mean(x_offsets) * 100  # As % of figure width
+    avg_y_offset = np.mean(y_offsets) * 100  # As % of figure height
+
+    # Store corrected metrics
+    st.session_state.responses.update({
+        "gestalt_symmetry_value": symmetry_value,
+        "gestalt_symmetry_avg_x_offset": f"{avg_x_offset:.2f}%",
+        "gestalt_symmetry_avg_y_offset": f"{avg_y_offset:.2f}%",
+        "gestalt_symmetry_avg_radial_error": f"{np.mean([avg_x_offset, avg_y_offset]):.2f}%"
+    })
+
+    st.write(f"Avg X-offset from centerline: {avg_x_offset:.2f}%")
+    st.write(f"Avg Y-offset from centerline: {avg_y_offset:.2f}%")
+    
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis('off')
     st.pyplot(fig, clear_figure=True)
     
 def main():
@@ -319,27 +591,13 @@ def main():
         create_closure_visualization()
         create_continuity_visualization()
         create_proximity_visualization()
+        create_experience_visualization()
+        create_pragnanz_visualization()
+        create_similarity_visualization()
+        create_symmetry_visualization()
         
         # Start the form for all other questions
         with st.form("design_survey"):
-            # Other Gestalt Principles
-            create_standard_question(
-                "Elements that are close together are perceived as related (Proximity)",
-                "gestalt", "proximity"
-            )
-            create_standard_question(
-                "Similar elements are perceived as related (Similarity)",
-                "gestalt", "similarity"
-            )
-            create_standard_question(
-                "Elements arranged in a line or curve are perceived as related (Continuity)",
-                "gestalt", "continuity"
-            )
-            create_standard_question(
-                "The figure/ground relationship is clear in the design",
-                "gestalt", "figure_ground"
-            )
-            
             # Wickens' Principles Section
             st.header("Wickens' Principles")
             st.markdown("""
@@ -349,18 +607,6 @@ def main():
             create_standard_question(
                 "The design minimizes perceptual confusion",
                 "wickens", "perceptual"
-            )
-            create_standard_question(
-                "The design reduces mental workload",
-                "wickens", "mental_workload"
-            )
-            create_standard_question(
-                "The design minimizes memory requirements",
-                "wickens", "memory"
-            )
-            create_standard_question(
-                "The design guides attention effectively",
-                "wickens", "attention"
             )
             
             # Ergonomic Considerations Section
@@ -372,18 +618,6 @@ def main():
             create_standard_question(
                 "The design promotes user comfort",
                 "ergonomic", "comfort"
-            )
-            create_standard_question(
-                "The design is accessible to diverse users",
-                "ergonomic", "accessibility"
-            )
-            create_standard_question(
-                "The design considers safety aspects",
-                "ergonomic", "safety"
-            )
-            create_standard_question(
-                "The design promotes efficient task completion",
-                "ergonomic", "efficiency"
             )
             
             # Additional Comments

@@ -11,6 +11,7 @@ import numpy as np
 from matplotlib.patches import Arc
 from matplotlib.patches import Wedge
 import time
+import random
 
 # Email configuration
 EMAIL_HOST = 'smtp.gmail.com'
@@ -76,8 +77,8 @@ def create_closure_visualization():
     st.subheader("1. Law of Closure")
     st.markdown("""
     **Instructions:**
-    - Slide left to create a smaller arc
-    - Slide right to create a more closed shape
+    - Slide left to create a smaller arc.
+    - Slide right to create a more closed shape.
     """)
 
     # Slider: Value maps to how 'closed' the circle appears
@@ -130,8 +131,8 @@ def create_continuity_visualization():
     st.subheader("2. Law of Continuity")
     st.markdown(f"""
     **Instructions:**
-    - At 1: Circles are randomly placed
-    - At 100: Perfectly aligned
+    - At 1: Circles are randomly placed.
+    - At 100: Perfectly aligned.
     """)
     
     # Constants
@@ -207,8 +208,8 @@ def create_proximity_visualization():
     st.subheader("3. Law of Proximity")
     st.markdown(f"""
     **Instructions:**
-    - At minimum setting the circles are clearly separated
-    - At maximum setting the circles are clearly grouped
+    - At minimum setting the circles are clearly separated.
+    - At maximum setting the circles are clearly grouped.
     """)
     
     # Constants
@@ -273,8 +274,8 @@ def create_experience_visualization():
     st.subheader("4. Law of Experience")
     st.markdown(f"""
     **Instructions:**
-    - Slide left to increase noise level
-    - Slide right to decrease noise level
+    - Slide left to increase noise level.
+    - Slide right to decrease noise level.
     """)
     
     # Configuration
@@ -322,10 +323,10 @@ def create_pragnanz_visualization():
     st.subheader("5. Law of Prägnanz (Simplicity)")
     st.markdown(f"""
     **Instructions:**
-    - 1: Simple circle
-    - 2: Inner circle added
-    - 3-6: Cardinal direction blades
-    - 7-10: Diagonal blades and details
+    - 1: Simple circle.
+    - 2: Inner circle added.
+    - 3-6: Cardinal direction blades.
+    - 7-10: Diagonal blades and details.
     """)
     
     pragnanz_value = st.slider(
@@ -412,8 +413,8 @@ def create_similarity_visualization():
     st.subheader("6. Law of Similarity")
     st.markdown(f"""
     **Instructions:**
-    - At 1: All shapes have random colors
-    - At 100: All shapes share the same color
+    - At 1: All shapes have random colors.
+    - At 100: All shapes share the same color.
     """)
     
     similarity_color_value = st.slider(
@@ -469,8 +470,8 @@ def create_symmetry_visualization():
     st.subheader("7. Law of Symmetry")
     st.markdown("""
     **Instructions:**
-    - At 1: Random petal arrangement
-    - At 100: Perfect radial symmetry
+    - At 1: Random petal arrangement.
+    - At 100: Perfect radial symmetry.
     """)
 
     symmetry_value = st.slider(
@@ -597,7 +598,7 @@ def create_common_fate_questions():
     # Primary Flight Display
     ask_motion_direction(
         "G. When the airspeed increases, how should the indicator change?",
-        "Velocity"
+        "Airspeed"
     )
     ask_motion_direction(
         "H. When the climb rate decreases, how should the vertical speed indicator change?",
@@ -839,6 +840,218 @@ def create_absolute_judgement_questions():
         help="Select the option you think suits the question best."
     )
     st.session_state.responses["absjudge_alt_preference"] = alt_option
+
+def create_topdown_processing_questions():
+    st.subheader("12. Top-Down Processing")
+    st.markdown("""
+    **Instructions:**  
+    - Assume all elements are placed in one square display.
+    - For each horizontal region (Top/Middle/Bottom), select the cockpit elements you'd expect to see there.
+    - Elements can appear in only one region (no duplicates).
+    - Number of elements per region can vary.
+    """)
+
+    # Define elements and grid
+    elements = [
+        "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
+        "Thrust Setting", "Fuel on Board", "Flap Setting", 
+        "Airspeed", "Climb Rate", "Heading Indicator", 
+        "Altimeter", "Hydraulic Warning", "Landing Gear", 
+        "Autopilot Status"
+    ]
+    grid_labels = [
+        "Top-Left", "Top-Middle", "Top-Right",
+        "Middle-Left", "Center", "Middle-Right",
+        "Bottom-Left", "Bottom-Middle", "Bottom-Right"
+    ]
+
+    # Initialize session state
+    if "topdown_grid" not in st.session_state:
+        st.session_state.topdown_grid = {label: [] for label in grid_labels}
+    if "used_elements" not in st.session_state:
+        st.session_state.used_elements = set()
+
+    # Reset used elements tracking
+    st.session_state.used_elements = set()
+    for label in grid_labels:
+        st.session_state.used_elements.update(st.session_state.topdown_grid.get(label, []))
+
+    # TOP ROW (Horizontal)
+    top_cols = st.columns(3)
+    for i, label in enumerate(["Top-Left", "Top-Middle", "Top-Right"]):
+        with top_cols[i]:
+            st.markdown(f"**{label}**")
+            current_selection = st.session_state.topdown_grid.get(label, [])
+            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
+            
+            new_selection = st.multiselect(
+                f"Select for {label}:",
+                available_elements,
+                default=current_selection,
+                key=f"top_select_{label}"
+            )
+            st.session_state.topdown_grid[label] = new_selection
+            
+            if new_selection:
+                st.markdown(f"*Selected:* {', '.join(new_selection)}")
+
+    # MIDDLE ROW (Horizontal)
+    middle_cols = st.columns(3)
+    for i, label in enumerate(["Middle-Left", "Center", "Middle-Right"]):
+        with middle_cols[i]:
+            st.markdown(f"**{label}**")
+            current_selection = st.session_state.topdown_grid.get(label, [])
+            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
+            
+            new_selection = st.multiselect(
+                f"Select for {label}:",
+                available_elements,
+                default=current_selection,
+                key=f"middle_select_{label}"
+            )
+            st.session_state.topdown_grid[label] = new_selection
+            
+            if new_selection:
+                st.markdown(f"*Selected:* {', '.join(new_selection)}")
+
+    # BOTTOM ROW (Horizontal)
+    bottom_cols = st.columns(3)
+    for i, label in enumerate(["Bottom-Left", "Bottom-Middle", "Bottom-Right"]):
+        with bottom_cols[i]:
+            st.markdown(f"**{label}**")
+            current_selection = st.session_state.topdown_grid.get(label, [])
+            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
+            
+            new_selection = st.multiselect(
+                f"Select for {label}:",
+                available_elements,
+                default=current_selection,
+                key=f"bottom_select_{label}"
+            )
+            st.session_state.topdown_grid[label] = new_selection
+            
+            if new_selection:
+                st.markdown(f"*Selected:* {', '.join(new_selection)}")
+
+    # Validation
+    all_selected = []
+    for label, items in st.session_state.topdown_grid.items():
+        all_selected.extend(items)
+    
+    duplicates = set([x for x in all_selected if all_selected.count(x) > 1])
+    if duplicates:
+        st.error(f"Error: Duplicate items found: {duplicates}. Please remove them.")
+    elif len(all_selected) != len(elements):
+        st.warning(f"Not all elements placed ({len(all_selected)}/{len(elements)})")
+
+    # Save results
+    st.session_state.responses["topdown_processing"] = st.session_state.topdown_grid
+
+def create_redundancy_gain_questions():
+    st.subheader("13. Redundancy Gain")
+    st.markdown("""
+    **Instructions:**  
+    - Compare the 4 versions of the engine failure alert below.  
+    - Select which design is clearest and most intuitive.  
+    """)
+
+    alert = "ENGINE FAILURE"
+    icons = {"ENGINE FAILURE": "🔥"}
+    shapes = {"triangle": "⚠️"}
+    
+    # Initialize responses
+    if "redundancy_responses" not in st.session_state:
+        st.session_state.redundancy_responses = {}
+    
+    # Version 1: Text-Only
+    st.markdown("**Version 1: Text-Only**")
+    st.markdown(
+        f'<div style="font-size:16pt; padding:10px; border:1px solid #ccc; border-radius:5px; margin-bottom:20px;">'
+        f'{alert}</div>',
+        unsafe_allow_html=True
+    )
+    
+    # Version 2: Text + Icon
+    st.markdown("**Version 2: Text + Icon**")
+    st.markdown(
+        f'<div style="font-size:16pt; padding:10px; border:1px solid #ccc; border-radius:5px; margin-bottom:20px;">'
+        f'{icons[alert]} {alert} {icons[alert]}</div>',
+        unsafe_allow_html=True
+    )
+    
+    # Version 3: Text + Color + Shape
+    st.markdown("**Version 3: Text + Icon + Color**")
+    st.markdown(
+        f'<div style="font-size:16pt; color:red; padding:10px; border:1px solid #ccc; '
+        f'border-radius:5px; margin-bottom:20px;">'
+        f'{shapes["triangle"]} <strong>{alert}</strong> {shapes["triangle"]}</div>',
+        unsafe_allow_html=True
+    )
+    
+    # Version 4: Spatial Grouping
+    st.markdown("**Version 4: Spatial Grouping**")
+    st.markdown(
+        f'<div style="font-size:16pt; padding-left:10px; border-left:4px solid red; '
+        f'border-radius:2px; margin-bottom:20px;">'
+        f'{icons[alert]} <strong>{alert}</strong></div>',
+        unsafe_allow_html=True
+    )
+
+    # --- Preference Question ---
+    preference = st.radio(
+        "Which version is clearest for recognizing an engine failure?",
+        options=[
+            "Version 1 (Text-Only)",
+            "Version 2 (Text + Icon)",
+            "Version 3 (Text + Icon + Color)",
+            "Version 4 (Spatial Grouping)"
+        ],
+        index=None,  # Force user to select
+        key="redundancy_preference"
+    )
+    
+    # Save response
+    if preference:
+        st.session_state.responses["redundancy_gain"] = {
+            "preferred_version": preference,
+            "alert_type": alert
+        }
+
+    # Optional justification
+    st.text_input("Briefly explain your choice (optional):", key="redundancy_reason")
+
+import streamlit as st
+
+def create_discriminability_questions():
+    st.subheader("14. Discriminability")
+    st.markdown("""
+    **Instructions:**
+    - A reference text is shown at font size 12.
+    - Adjust the slider to find the smallest font size that looks visibly different from the reference.
+    """)
+
+    # Reference text (fixed at 12px)
+    st.markdown("**Reference Text**")
+    st.markdown('<p style="font-size:12px; margin:0">ALT 5000ft</p>', unsafe_allow_html=True)
+
+    # Dynamic comparison text
+    st.markdown("")
+    font_size = st.slider(
+        "Adjust font size until the text below looks clearly different from the reference text above (12px):",
+        min_value=12.0,
+        max_value=24.0,
+        value=18.0,
+        step=0.5,
+        key="font_size_diff",
+        help="Slide to change the font size. Stop at the smallest font size where you feel the text is in different grouping than the reference text."
+    )
+    
+    difference = round(font_size - 12, 1)
+    st.session_state.responses["min_discriminable_size_diff"] = f"{difference}px"
+    st.write(f"Your current minimum noticeable difference: {difference}")
+
+    # Display the comparison
+    st.markdown(f'<p style="font-size:{font_size}px; margin:0">ALT 5000ft</p>', unsafe_allow_html=True)
     
 def main():
     # Survey Header
@@ -899,21 +1112,24 @@ def main():
 
         create_legibility_questions()
         create_absolute_judgement_questions()
+        create_topdown_processing_questions()
+        create_redundancy_gain_questions()
+        create_discriminability_questions()
 
         # Ergonomic Considerations Section
         st.header("Ergonomic Considerations")
         st.markdown("""
         Ergonomic Considerations address physical and cognitive fit between users and designs.
         """)
+
+        # Additional Comments
+        st.session_state.responses["comments"] = st.text_area(
+            "Additional comments or observations:",
+            key="comments"
+        )
         
         # All other questions
         with st.form("design_survey"):  
-            
-            # Additional Comments
-            st.session_state.responses["comments"] = st.text_area(
-                "Additional comments or observations:",
-                key="comments"
-            )
             
             # Submit button
             submitted = st.form_submit_button("Submit Survey")

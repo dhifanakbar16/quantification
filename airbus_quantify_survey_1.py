@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from matplotlib.patches import Arc
 from matplotlib.patches import Wedge
@@ -69,18 +70,6 @@ def send_email_with_results(responses):
     except Exception as e:
         st.error(f"Error sending email: {e}")
         return False
-
-def create_standard_question(question_text, principle_category, key_suffix):
-    """Helper function to create a standardized survey question"""
-    key = f"{principle_category}_{key_suffix}"
-    st.session_state.responses[key] = st.slider(
-        question_text,
-        min_value=1,
-        max_value=5,
-        value=3,
-        key=key,
-        help="1: Strongly Disagree, 3: Neutral, 5: Strongly Agree"
-    )
 
 def create_closure_visualization():
     """Create interactive visualization for Law of Closure"""
@@ -550,84 +539,306 @@ def create_symmetry_visualization():
 
 def create_common_fate_questions():
     st.subheader("8. Law of Common Fate")
-    st.markdown("""
-    **Principle:** Elements that share motion patterns are perceived as related.  
-    **Goal:** Identify expected behaviors for aviation display elements.
+    st.markdown(""" 
+    **Instructions:** 
+    - Select all expected behaviors for each aviation display element.
+    - You may choose more than one option where fits.
     """)
 
     common_fate_responses = {}
-
-    # Question template with multi-select
-    def ask_motion_direction(question, element_name, options):
-        st.write(f"**{question}**")
-        
-        # Multi-select for motion patterns
-        selected = st.multiselect(
-            f"Expected behaviors for {element_name}:",
-            options=options,
-            default=None,
-            key=f"common_fate_{element_name}"
-        )
-        
-        # Open-ended notes
-        notes = st.text_input(
-            f"Additional context for {element_name} (optional):",
-            key=f"notes_{element_name}"
-        )
-        
-        common_fate_responses[element_name] = {
-            "behaviors": selected,
-            "notes": notes
-        }
-
-    # Define standard options
     motion_options = [
         "⬆️ Up", "⬇️ Down", "➡️ Right", "⬅️ Left",
         "↻ Clockwise", "↺ Counter-clockwise",
         "💨 Expand outward", "🌀 Spiral inward",
         "🔴 Color change (e.g., red)", "🟢 Color change (e.g., green)",
         "🔢 Numerical update", "📈 Fill animation",
-        "🚨 Blinking alert"
+        "🚨 Blinking alert", "📉 Tape scrolls down", 
+        "🛑 Solid red + audible alarm"
     ]
 
-    # Engine Instruments
+    # Question template
+    def ask_motion_direction(question, element_name):
+        st.write(f"**{question}**")
+        selected = st.multiselect(
+            f"Expected behaviors for {element_name}:",
+            options=motion_options,
+            default=None,
+            key=f"common_fate_{element_name}",
+            help="Select the option(s) which you deem fit for the display element in question."
+        )
+        common_fate_responses[element_name] = {"behaviors": selected}
+
+    # Engine Display Instruments
     ask_motion_direction(
-        "When engine RPM increases, how should the indicator respond?",
-        "Engine RPM",
-        motion_options
+        "A. When engine RPM increases, how should the indicator respond?",
+        "Engine RPM"
+    )
+    ask_motion_direction(
+        "B. When temperature exceeds limit on the exhaust gas, how should the indicator be presented?",
+        "Exhaust Gas Temperature"
+    )
+    ask_motion_direction(
+        "C. When the fuel consumption decreases, how should the indicator change?",
+        "Fuel Flow"
+    )
+    ask_motion_direction(
+        "D. When the thrust setting changes, how should the information be displayed?",
+        "Thrust Setting"
+    )
+    ask_motion_direction(
+        "E. When the fuel on board decreases, how should the indicator change?",
+        "Fuel on Board"
+    )
+    ask_motion_direction(
+        "F. When the flap extends, how should the information be displayed?",
+        "Flap Setting"
     )
 
-    # Flight Instruments
+    # Primary Flight Display
     ask_motion_direction(
-        "When altitude increases, how should the altimeter change?",
-        "Altimeter",
-        motion_options + ["📉 Tape scrolls down"]  # Add aviation-specific option
+        "G. When the airspeed increases, how should the indicator change?",
+        "Velocity"
+    )
+    ask_motion_direction(
+        "H. When the climb rate decreases, how should the vertical speed indicator change?",
+        "Climb Rate"
+    )
+    ask_motion_direction(
+        "I. When turning right, how should the heading indicator change?",
+        "Heading Indicator"
+    )
+    ask_motion_direction(
+        "J. When the plane descends, how should the altimeter change?",
+        "Altimeter"
     )
 
-    # System Indicators
+    # Other Critical Displays
     ask_motion_direction(
-        "When hydraulic pressure drops critically, how should the warning appear?",
-        "Hydraulic Warning",
-        motion_options + ["🛑 Solid red + audible alarm"] 
+        "K. When hydraulic pressure drops critically, how should the warning appear?",
+        "Hydraulic Warning"
+    )
+    ask_motion_direction(
+        "L. When gear deploys, how should the landing gear indicator be displayed?",
+        "Landing Gear"
+    )
+    ask_motion_direction(
+        "M. When autopilot is turned off, how should the autopilot status be updated?",
+        "Autopilot Status"
     )
 
-    # Full question list (10 total)
-    elements = [
-        ("Airspeed Indicator", "When airspeed increases..."),
-        ("Vertical Speed Indicator", "When climb rate increases..."),
-        ("Heading Indicator", "When turning right..."),
-        ("Fuel Flow", "When fuel consumption increases..."),
-        ("Flap Position", "When flaps extend..."),
-        ("Landing Gear", "When gear deploys..."),
-        ("EGT (Exhaust Gas Temp)", "When temperature exceeds limits..."),
-        ("Autopilot Status", "When engagement state changes...")
-    ]
+    # Comment box at the end
+    st.markdown("---")
+    general_notes = st.text_area(
+        "Additional context or special cases (optional):",
+        key="common_fate_notes",
+        help="Describe any unique expectations not captured above."
+    )
     
-    for element, question in elements:
-        ask_motion_direction(question, element, motion_options)
+    # Store all responses with notes
+    st.session_state.responses["common_fate"] = {
+        "elements": common_fate_responses,
+        "general_notes": general_notes
+    }
 
-    # Store responses
-    st.session_state.responses["common_fate"] = common_fate_responses
+def create_legibility_questions():
+    st.subheader("9. Display Legibility")
+    st.markdown(""" 
+    **Instructions:** 
+    - Please answer the questions below to establish a minimum legibility thresholds.
+    - Please remember to adjust your eyes to be at least 30 cm away from the screen and sit upright.
+    """)
+
+    # 1. Font Size Threshold Test
+    st.markdown("**A. Minimum Legible Font Size**")
+    font_sample = st.slider(
+        "Adjust until text below becomes illegible:",
+        min_value=1, max_value=30, value=15, step=1,
+        key="legibility_font_size",
+        help="Slide to change the font size. Stop when the text becomes too small to read comfortably."
+    )
+
+    st.write(f"Current font size: {font_sample}")
+    st.markdown(f'<p style="font-size:{font_sample}pt">ALT 3200ft <span style="color:red">HDG 178°</span> IAS 210kt</p>', 
+                unsafe_allow_html=True)
+    st.session_state.responses["legibility_min_font_pt"] = font_sample
+
+    # Add space between sections
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 2. Contrast Sensitivity Test
+    st.markdown("**B. Contrast Threshold**")
+    contrast = st.slider(
+        "Adjust contrast until text becomes unreadable:",
+        min_value=1, max_value=100, value=50,
+        key="legibility_contrast",
+        help="Slide to change the background color. Stop when the text becomes hard to read."
+    )
+
+    bg_color = 255 - int(255 * (contrast/100))
+
+    st.write(f"Current background color value: {bg_color}")
+    st.markdown(
+        f'<div style="background-color:rgb({bg_color},{bg_color},{bg_color});'
+        f'padding:10px;border-radius:5px">'
+        f'<p style="color:black;font-size:14pt">ENG1 OIL 120°C</p></div>',
+        unsafe_allow_html=True
+    )
+
+    st.session_state.responses["legibility_contrast_threshold"] = f"{100-contrast}%"
+
+    # Add space between sections
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 3. Color Differentiation Test
+    st.markdown("**C. Color Differentiation (Critical Pairs)**")
+    color_pairs = [
+        ("red", "green", "WARNING vs NORMAL"),
+        ("blue", "purple", "ACTIVE vs STANDBY"),
+        ("orange", "yellow", "CAUTION vs ADVISORY")
+    ]
+    for color1, color2, label in color_pairs:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f'<p style="color:{color1};font-size:12pt">■ {label} {color1}</p>', 
+                       unsafe_allow_html=True)
+        with col2:
+            st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label} {color2}</p>', 
+                       unsafe_allow_html=True)
+        score = st.slider(
+            f"How distinct are these colors for {label}? (1 = identical, 100 = very distinct)",
+            min_value=1, max_value=10, value=5,
+            key=f"legibility_color_{color1}_{color2}",
+            help="Slide to adjust your answer."
+        )
+        st.session_state.responses[f"legibility_color_{color1.replace('#','')}_{color2.replace('#','')}"] = score
+
+    # Add space between sections
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 4. Glare Simulation Test
+    st.markdown("**D. Glare Resistance**")
+    glare_intensity = st.slider(
+        "Adjust the glare effect until text become unreadable:",
+        min_value=1, max_value=100, value=50,
+        key="legibility_glare",
+        help="Slide to change the glare opacity. Stop when you face difficulty in reading the text."
+    )
+    glare_opacity = glare_intensity / 100
+
+    st.write(f"Current glare opacity: {glare_intensity}")
+
+    st.markdown(
+        f'<div style="position:relative;background-color:#003366;padding:15px;border-radius:5px">'
+        f'<p style="color:white;font-size:14pt">FLAPS 15°</p>'
+        f'<div style="position:absolute;top:0;left:0;width:100%;height:100%;'
+        f'background:linear-gradient(135deg, rgba(255,255,255,{glare_opacity}) 0%, '
+        f'rgba(255,255,255,{glare_opacity*0.5}) 50%);"></div></div>',
+        unsafe_allow_html=True
+    )
+    st.session_state.responses["legibility_glare_tolerance"] = f"{glare_intensity}%"
+
+    # Add space between sections
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 5. Dynamic Text Legibility
+    st.markdown("**E. Moving Text Legibility**")
+    motion_speed = st.slider(
+        "Adjust until the text movement speed (0.1 = slow, 10.0 = fast) becomes too fast:",
+        min_value=0.1, max_value=10.0, value=5.0, step=0.1,
+        key="legibility_motion",
+        help="Slide to change the text movement speed. Stop when the text becomes disorienting to read."
+    )
+    
+    # Convert speed to animation duration (faster speed = shorter duration)
+    animation_duration = max(0.1, 2.0 - (motion_speed * 0.19))  # Maps 0.1→~2s, 10→~0.1s
+    
+    st.write(f"Current speed: {motion_speed} (animation duration: {animation_duration:.1f}s)")
+
+    st.markdown(
+        f'<style>'
+        f'.motion-test {{animation: moveText {animation_duration}s linear infinite;}}'
+        f'@keyframes moveText {{0% {{transform: translateX(0px);}} 50% {{transform: translateX(20px);}} 100% {{transform: translateX(0px);}}}}'
+        f'</style>'
+        f'<p class="motion-test" style="font-size:14pt">VSI +1200 ft/min</p>',
+        unsafe_allow_html=True
+    )
+    st.session_state.responses["legibility_motion_threshold"] = motion_speed
+
+def create_absolute_judgement_questions():
+    st.subheader("10. Avoid Absolute Judgement Limits")
+    st.markdown("""
+    **Instructions:**
+    - Please evaluate whether the display requires you to make precise judgements (e.g., exact values, small differences).
+    - Please rate how easily you can interpret the information without needing perfect precision.
+    """)
+
+    # 1. Numeric Readability (Exact vs. Approximate)
+    st.markdown("**A. Numeric Readability**")
+    st.markdown("Compare these two displays. Which is easier to interpret at a glance?")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        **Display 1 (Precise):**  
+        `Fuel: 4237 lbs`  
+        `Oil Temp: 187°C`  
+        `Altitude: 12453 ft`
+        """)
+        precise_score = st.slider(
+            "Rate Display 1 (1 = hard, 5 = easy)",
+            1, 5, 3,
+            key="absjudge_numeric_precise",
+            help="Slide to adjust your answer."
+        )
+    
+    with col2:
+        st.markdown("""
+        **Display 2 (Approximate):**  
+        `Fuel: ~4200 lbs`  
+        `Oil Temp: ~190°C`  
+        `Altitude: ~12500 ft`
+        """)
+        approx_score = st.slider(
+            "Rate Display 2 (1 = hard, 5 = easy)",
+            1, 5, 3,
+            key="absjudge_numeric_approx",
+            help="Slide to adjust your answer."
+        )
+    
+    st.session_state.responses["absjudge_numeric_diff"] = approx_score - precise_score
+
+    # 2. Color Gradients (Subtle Differences)
+    st.markdown("**B. Color Gradient Interpretation**")
+    st.markdown("Can you distinguish these color-coded status levels without exact hues?")
+    
+    gradient_colors = ["#FF0000", "#FF4500", "#FFA500", "#FFD700", "#FFFF00"]
+    gradient_labels = ["Critical", "High", "Medium", "Low", "Caution"]
+    
+    cols = st.columns(len(gradient_colors))
+    for i, (color, label) in enumerate(zip(gradient_colors, gradient_labels)):
+        with cols[i]:
+            st.markdown(f'<div style="height:50px;background:{color};border-radius:5px"></div>', unsafe_allow_html=True)
+            st.markdown(f"**{label}**")
+    
+    gradient_score = st.slider(
+        "Rate how easily you can distinguish levels (1 = indistinguishable, 5 = very clear)",
+        1, 5, 3,
+        key="absjudge_color_gradient",
+        help="Slide to adjust your answer."
+    )
+    st.session_state.responses["absjudge_color_diff"] = gradient_score
+
+    # 3. Relative vs Absolute Judgement
+    st.markdown("**C. Relative vs Absolute Judgement**")
+    st.markdown("Which of these altitude displays is easier to interpret quickly?")
+    
+    alt_option = st.radio(
+        "Options:",
+        ["Absolute: `ALT 12453 ft`", "Relative: `+500 ft` (from target)", "Both are equal"],
+        key="absjudge_altitude",
+        help="Select the option you think suits the question best."
+    )
+    st.session_state.responses["absjudge_alt_preference"] = alt_option
     
 def main():
     # Survey Header
@@ -665,13 +876,12 @@ def main():
     """)
     
     if not st.session_state.submitted:
-        # Gestalt Principles Section - moved outside the form for immediate updates
+        # Gestalt Principles Section
         st.header("Gestalt Design Laws")
         st.markdown("""
         Gestalt Design Laws describe how humans perceive visual elements as unified wholes.
         """)
         
-        # Initialization of visualization
         create_closure_visualization()
         create_continuity_visualization()
         create_proximity_visualization()
@@ -680,30 +890,24 @@ def main():
         create_similarity_visualization()
         create_symmetry_visualization()
         create_common_fate_questions()
+
+        # Wickens' Principles Section
+        st.header("Wickens' Principles")
+        st.markdown("""
+        Wickens' Principles focus on human information processing and cognitive ergonomics.
+        """)
+
+        create_legibility_questions()
+        create_absolute_judgement_questions()
+
+        # Ergonomic Considerations Section
+        st.header("Ergonomic Considerations")
+        st.markdown("""
+        Ergonomic Considerations address physical and cognitive fit between users and designs.
+        """)
         
-        # Start the form for all other questions
-        with st.form("design_survey"):
-            # Wickens' Principles Section
-            st.header("Wickens' Principles")
-            st.markdown("""
-            **Wickens' Principles** focus on human information processing and cognitive ergonomics.
-            """)
-            
-            create_standard_question(
-                "The design minimizes perceptual confusion",
-                "wickens", "perceptual"
-            )
-            
-            # Ergonomic Considerations Section
-            st.header("Ergonomic Considerations")
-            st.markdown("""
-            **Ergonomic Considerations** address physical and cognitive fit between users and designs.
-            """)
-            
-            create_standard_question(
-                "The design promotes user comfort",
-                "ergonomic", "comfort"
-            )
+        # All other questions
+        with st.form("design_survey"):  
             
             # Additional Comments
             st.session_state.responses["comments"] = st.text_area(

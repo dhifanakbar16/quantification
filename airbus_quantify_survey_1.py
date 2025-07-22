@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib.patches import Arc
 import time
 from matplotlib.animation import FuncAnimation
-from IPython.display import HTML 
 from PIL import Image
 from PIL import ImageFilter
 import random

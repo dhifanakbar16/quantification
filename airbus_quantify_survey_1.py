@@ -6,11 +6,13 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from matplotlib.patches import Arc
-from matplotlib.patches import Wedge
 import time
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML 
+from PIL import Image
+from PIL import ImageFilter
 import random
 
 # Email configuration
@@ -317,6 +319,8 @@ def create_experience_visualization():
     st.session_state.responses["gestalt_experience_noise"] = f"{noise_level:.1f}%"
     
     st.pyplot(fig, clear_figure=True)
+
+    st.write("Credit: https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/pfd")
 
 def create_pragnanz_visualization():
     """Interactive visualization for Law of Prägnanz (simplicity)"""
@@ -842,7 +846,7 @@ def create_absolute_judgement_questions():
     st.session_state.responses["absjudge_alt_preference"] = alt_option
 
 def create_topdown_processing_questions():
-    st.subheader("12. Top-Down Processing")
+    st.subheader("11. Top-Down Processing")
     st.markdown("""
     **Instructions:**  
     - Assume all elements are placed in one square display.
@@ -948,7 +952,7 @@ def create_topdown_processing_questions():
     st.session_state.responses["topdown_processing"] = st.session_state.topdown_grid
 
 def create_redundancy_gain_questions():
-    st.subheader("13. Redundancy Gain")
+    st.subheader("12. Redundancy Gain")
     st.markdown("""
     **Instructions:**  
     - Compare the 4 versions of the engine failure alert below.  
@@ -1023,7 +1027,7 @@ def create_redundancy_gain_questions():
 import streamlit as st
 
 def create_discriminability_questions():
-    st.subheader("14. Discriminability")
+    st.subheader("13. Discriminability")
     st.markdown("""
     **Instructions:**
     - A reference text is shown at font size 12.
@@ -1052,7 +1056,750 @@ def create_discriminability_questions():
 
     # Display the comparison
     st.markdown(f'<p style="font-size:{font_size}px; margin:0">ALT 5000ft</p>', unsafe_allow_html=True)
+
+def create_pictorial_realism_questions():
+    st.subheader("14. Pictorial Realism")
+    st.markdown("""
+    **Instructions:** 
+    - Evaluate how intuitively users interpret arbitrary vs realistic layouts.
+    - Assume left/right wing tanks feed engines 1/2 respectively.
+    """)
+
+    # Generate simple diagrams
+    left_tank = "⬤"  # Unicode circle
+    right_tank = "⬤"
+    engine1 = "✈️"
+    engine2 = "✈️"
+
+    # Arbitrary vs. realistic layouts
+    arbitrary_layout = f"""
+    ```
+    [Tank A] ---> [Engine 1]
+    [Tank B] ---> [Engine 2]
+    """
     
+    realistic_layout = f"""
+    LEFT WING                 RIGHT WING
+             {left_tank}                                    {right_tank}
+                 \\                                  /
+                 {engine1}                       {engine2}
+    """
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Arbitrary Layout**")
+        st.code(arbitrary_layout, language="text")
+    
+    with col2:
+        st.markdown("**Realistic Layout**")
+        st.text(realistic_layout)
+
+    # Horizontal rating questions
+    st.markdown("Rate each layout:")
+    rating_col1, rating_col2 = st.columns(2)
+    
+    with rating_col1:
+        arbitrary_pref = st.radio(
+            "Arbitrary Layout (1 = unintuitive, 5 = intuitive)",
+            [1, 2, 3, 4, 5],
+            horizontal=True,
+            key="arbitrary_layout",
+            help="Please choose one of the option."
+        )
+        st.session_state.responses["arbitrary_layout_rating"] = arbitrary_pref
+    
+    with rating_col2:
+        realistic_pref = st.radio(
+            "Realistic Layout (1 = unintuitive, 5 = intuitive)",
+            [1, 2, 3, 4, 5],
+            horizontal=True,
+            key="realistic_layout",
+            help="Please choose one of the option."
+        )
+        st.session_state.responses["realistic_layout_rating"] = realistic_pref
+
+def create_moving_parts_visualization():
+    st.subheader("15. Moving Parts")
+    st.markdown("""
+    **Instructions:**
+    - Play the animation as more circles start moving.
+    - Select the point where you think that there are too many moving elements.
+    """)
+
+    # User selects when tracking becomes difficult
+    difficulty_threshold = st.slider(
+        "Adjust until the number of moving circles becomes overwhelming to see:",
+        min_value=1, 
+        max_value=10, 
+        value=5,
+        key="moving_parts_threshold",
+        help="Adjust your answer on the slider. Stop when you feel the animation becomes hard to follow"
+    )
+
+    # Animation setup
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.set_xlim(0, 11)
+    ax.set_ylim(-0.5, 1.5)
+    ax.axis('off')
+    
+    n_circles = 10
+    circles = []
+    for i in range(n_circles):
+        circle = plt.Circle((i+1, 0.5), 0.4, color='blue', alpha=0.7)
+        ax.add_patch(circle)
+        circles.append(circle)
+        ax.text(i+1, 0.5, str(i+1), ha='center', va='center', color='white')
+
+    # Animation update function
+    def update(frame):
+        current_moving = (frame // 20) % 10 + 1  # Cycles 1-10 every 2 sec (20 frames * 0.1s)
+        
+        for i, circle in enumerate(circles):
+            if i < current_moving:
+                # Animate moving up and down
+                y_pos = 0.5 + 0.3 * np.sin(frame * 0.2 + i * 0.5)
+                circle.set_center((i+1, y_pos))
+                circle.set_alpha(0.7)
+            else:
+                circle.set_center((i+1, 0.5))
+                circle.set_alpha(0.2)
+        
+        ax.set_title(f"{current_moving} Moving Circles", fontsize=12)
+        return circles
+
+    st.write(f"Current moving parts threshold: {difficulty_threshold} moving circles")
+
+    # Create animation (simulated for Streamlit)
+    # Note: Streamlit doesn't support FuncAnimation natively, so we simulate frames
+    if st.button("Play Animation"):
+        placeholder = st.empty()
+        for frame in range(200):  # 200 frames (~20 sec loop)
+            current_moving = (frame // 20) % 10 + 1
+            update(frame)
+            placeholder.pyplot(fig, clear_figure=False)
+            time.sleep(0.1)
+
+    # Store metrics
+    st.session_state.responses.update({
+        "moving_parts_threshold": difficulty_threshold,
+        "moving_parts_assessment": "Optimal" if difficulty_threshold <= 3 else "High Load"
+    })
+
+def create_access_cost_visualization():
+    st.subheader("16. Minimize Information Access Cost")
+    st.markdown("""
+    **Instructions:**  
+    - Select each cockpit element into one of the Access Cost Zones below.  
+    - **Zone 0**: Directly visible (optimal for critical elements).  
+    - **Zone 3**: Buried in menus/subpages (high cost).  
+    """)
+
+    # Define elements
+    elements = [
+        "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
+        "Thrust Setting", "Fuel on Board", "Flap Setting", 
+        "Airspeed", "Climb Rate", "Heading Indicator", 
+        "Altimeter", "Hydraulic Warning", "Landing Gear", 
+        "Autopilot Status"
+    ]
+
+    # Define zones (0=lowest cost, 3=highest cost)
+    zones = {
+        "Zone 0: Directly Visible (Primary Display)": [],
+        "Zone 1: 1-Step Access (Secondary Display)": [],
+        "Zone 2: 2-Step Access (Submenu/Popup)": [],
+        "Zone 3: 3+ Steps (Nested Menus)": []
+    }
+
+    # Initialize session state
+    if "access_cost_zones" not in st.session_state:
+        st.session_state.access_cost_zones = {zone: [] for zone in zones.keys()}
+        st.session_state.unassigned_elements = elements.copy()
+
+    # Reset tracking
+    st.session_state.unassigned_elements = [
+        e for e in elements 
+        if not any(e in zone_list for zone_list in st.session_state.access_cost_zones.values())
+    ]
+
+    # --- ZONE LAYOUT (4 columns) ---
+    cols = st.columns(4)
+    for i, (zone_name, _) in enumerate(zones.items()):
+        with cols[i]:
+            st.markdown(f"**{zone_name}**")
+            
+            # Multiselect for each zone (acts as drag-and-drop proxy)
+            zone_selection = st.multiselect(
+                f"Assign to {zone_name.split(':')[0]}",
+                st.session_state.unassigned_elements + st.session_state.access_cost_zones[zone_name],
+                default=st.session_state.access_cost_zones.get(zone_name, []),
+                key=f"zone_{i}"
+            )
+            st.session_state.access_cost_zones[zone_name] = zone_selection
+
+            # Display current assignments
+            if zone_selection:
+                st.markdown(f"*Assigned:* {', '.join(zone_selection)}")
+
+    # --- VALIDATION ---
+    all_assigned = []
+    for zone, items in st.session_state.access_cost_zones.items():
+        all_assigned.extend(items)
+
+    # Check for duplicates/missing elements
+    duplicates = set([x for x in all_assigned if all_assigned.count(x) > 1])
+    if duplicates:
+        st.error(f"Error: Duplicate assignments: {duplicates}. Remove extras.")
+    elif len(all_assigned) != len(elements):
+        st.warning(f"Not all elements placed ({len(all_assigned)}/{len(elements)})")
+
+    # Store results
+    st.session_state.responses.update({
+        "access_cost_zones": st.session_state.access_cost_zones
+    })
+
+def create_proximity_compatibility_questions():
+    st.subheader("17. Proximity Compatibility")
+    st.markdown("""
+    **Instructions:**  
+    - For each element pair, rate how closely they should be grouped (1 = Unrelated, 5 = Must be adjacent).
+    - To be grouped is to put the elements close to each other.
+    """)
+
+    # Define element pairs
+    element_pairs = [
+        ("Engine RPM", "Exhaust Gas Temperature"),
+        ("Airspeed", "Altimeter"),
+        ("Fuel Flow", "Fuel on Board"),
+        ("Heading Indicator", "Climb Rate"),
+        ("Hydraulic Warning", "Landing Gear"),
+        ("Autopilot Status", "Thrust Setting")
+    ]
+
+    ratings = {}
+    for pair in element_pairs:
+        key = f"{pair[0]} ↔ {pair[1]}"
+        rating = st.slider(
+            f"How closely should **{pair[0]}** and **{pair[1]}** be grouped?",
+            1, 5, 3,
+            key=f"prox_{pair[0]}_{pair[1]}",
+            help="1 = Unrelated, 3 = Moderate, 5 = Critical to group"
+        )
+        ratings[key] = rating
+
+    # Store results
+    st.session_state.responses.update({
+        "proximity_ratings": ratings,
+    })
+
+def create_multiple_resources_questions():
+    st.subheader("18. Multiple Resources")
+    st.markdown("""
+    **Instructions:**  
+    - For each task, select which resource channels are used.  
+    - Leave unselected if a channel isn't used.  
+    """)
+
+    # Define tasks
+    tasks = {
+        "Monitor Engine RPM": "Visual gauge + Audio alert if exceeding threshold",
+        "Adjust Thrust Setting": "Manual lever control + Voice command confirmation",
+        "Respond to ATC Instructions": "Auditory message + Vocal response + Visual checklist",
+        "Navigate with Map": "Visual map + Haptic feedback when off-course",
+        "Handle Hydraulic Failure": "Visual warning + Audio alarm + Manual switch override"
+    }
+
+    # Resource channel options
+    channels = {
+        "Perceptual": ["Visual", "Auditory", "Haptic"],
+        "Cognitive": ["Perception", "Working Memory", "Decision Making"],
+        "Response": ["Manual", "Vocal", "None"]
+    }
+
+    # --- Task Evaluation ---
+    allocations = {}
+    for task, description in tasks.items():
+        st.markdown(f"**Task:** {task}  \n*{description}*")
+
+        cols = st.columns(3)
+        selected_channels = []
+        
+        # Perceptual Channel
+        with cols[0]:
+            perceptual = st.multiselect(
+                "Perceptual:",
+                channels["Perceptual"],
+                default=[],
+                key=f"perceptual_{task}"
+            )
+            selected_channels.extend(perceptual)
+        
+        # Cognitive Channel
+        with cols[1]:
+            cognitive = st.multiselect(
+                "Cognitive:",
+                channels["Cognitive"],
+                default=[], 
+                key=f"cognitive_{task}"
+            )
+            selected_channels.extend(cognitive)
+        
+        # Response Channel
+        with cols[2]:
+            response = st.multiselect(
+                "Response:",
+                channels["Response"],
+                default=[],
+                key=f"response_{task}"
+            )
+            selected_channels.extend(response)
+        
+        allocations[task] = selected_channels
+
+    # Store results
+    st.session_state.responses.update({
+        "resource_allocations": allocations,
+    })
+
+def create_predictive_aiding_questions():
+    st.subheader("19. Predictive Aiding")
+    st.markdown("""
+    **Instructions:**  
+    - Adjust each slider to set your preferred warning threshold.  
+    - Warnings should trigger when the value crosses your selected threshold.  
+    - Danger zones are fixed at max values (10, 100, 1000).  
+    """)
+
+    # --- Slider 1 (1-10 scale) ---
+    st.write("**Case 1: Low-Range Metric (Danger = 10)**")
+    threshold_1 = st.slider(
+        "Adjust until it has reached an appropriate value to trigger a warning:",
+        min_value=1,
+        max_value=10,
+        value=5,
+        key="predictive_1",
+        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+    )
+
+    # --- Slider 2 (1-100 scale) ---
+    st.write("**Case 2: Mid-Range Metric (Danger = 100)**")
+    threshold_2 = st.slider(
+        "Adjust until it has reached an appropriate value to trigger a warning:",
+        min_value=1,
+        max_value=100,
+        value=50,
+        key="predictive_2",
+        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+    )
+
+    # --- Slider 3 (1-1000 scale) ---
+    st.write("**Case 3: High-Range Metric (Danger = 1000)**")
+    threshold_3 = st.slider(
+        "Adjust until it has reached an appropriate value to trigger a warning:",
+        min_value=1,
+        max_value=1000,
+        value=500,
+        key="predictive_3",
+        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+    )
+    
+def create_memory_replacement_visualization():
+    st.subheader("20. Replace Memory with Visual Information")
+    st.markdown("""
+    **Instructions:**  
+    1. Click **Show Engine Display** to view an engine schematic for 7 seconds.  
+    2. After it disappears, recall and enter as many details as possible.  
+    """)
+
+    # Load engine display image
+    engine_img = Image.open("ecam.png")
+
+    # Initialize session state
+    if "memory_test_started" not in st.session_state:
+        st.session_state.memory_test_started = False
+        st.session_state.memory_test_end_time = 0
+        st.session_state.recalled_items = []
+
+    # --- Image Display Phase ---
+    if not st.session_state.memory_test_started:
+        if st.button("Show Engine Display"):
+            st.session_state.memory_test_started = True
+            st.session_state.memory_test_end_time = time.time() + 7 
+            st.rerun()
+
+    else:
+        # Show image for 7 seconds
+        if time.time() < st.session_state.memory_test_end_time:
+            st.image(engine_img, caption="Engine Display (Memorize this!)", use_container_width=True)
+            st.write(f"Time left: {int(st.session_state.memory_test_end_time - time.time())}s")
+            st.rerun() 
+        else:
+            st.session_state.memory_test_started = False
+            st.success("Time's up! Enter what you remember below.")
+
+    st.write("Credit: Anja Faulhaber, 2021")
+
+    # --- Recall Phase ---
+    if "memory_test_end_time" in st.session_state and time.time() > st.session_state.memory_test_end_time:
+        recalled = st.text_area(
+            "List all details you remember (example: engine rpm, fuel flow, and so on):",
+            height=200,
+            key="memory_recall"
+        )
+        st.session_state.recalled_items = [item.strip() for item in recalled.split(",") if item.strip()]
+
+    # Store results
+    st.session_state.responses.update({
+        "memory_recall_attempt": st.session_state.recalled_items
+    })
+
+def create_consistency_questions():
+    st.subheader("21. Consistency")
+    st.markdown("""
+    **Instructions:**  
+    1. Compare pairs of elements below.  
+    2. Rate their consistency on a 1-5 scale (1 = Inconsistent, 5 = Identical) based on how they should be designed against each other.  
+    """)
+
+    # Define element pairs to compare
+    consistency_pairs = [
+        ("Engine RPM Gauge", "Exhaust Temp Gauge"),
+        ("Primary Flight Display Colors", "Navigation Display Colors"),
+        ("Warning Alert Sound", "System Notification Sound"),
+        ("Button 'AUTO THRUST' Style", "Button 'FLAP EXTEND' Style"),
+        ("Menu Navigation Pattern", "Submenu Navigation Pattern")
+    ]
+
+    # --- Pair Comparison ---
+    ratings = {}
+    for pair in consistency_pairs:
+        key = f"{pair[0]} ↔ {pair[1]}"
+        rating = st.slider(
+            f"How consistent are **{pair[0]}** and **{pair[1]}**?",
+            1, 5, 3,
+            key=f"consistency_{pair[0]}_{pair[1]}",
+            help="Slide to adjust your answer,"
+        )
+        ratings[key] = rating
+
+    # Store results
+    st.session_state.responses.update({
+        "consistency_ratings": ratings,
+    })
+
+def create_frequency_of_use_questions():
+    st.subheader("22. Frequency of Use")
+    st.markdown("""
+    **Instructions:**  
+    - Assign each cockpit element to its usage frequency category.  
+    """)
+
+    # Define elements and frequency options
+    elements = [
+        "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
+        "Thrust Setting", "Fuel on Board", "Flap Setting", 
+        "Airspeed", "Climb Rate", "Heading Indicator", 
+        "Altimeter", "Hydraulic Warning", "Landing Gear", 
+        "Autopilot Status"
+    ]
+    
+    frequency_options = [
+        "Frequent", 
+        "Occasional", 
+        "Rare"
+    ]
+
+    # Initialize session state
+    if "frequency_assignments" not in st.session_state:
+        st.session_state.frequency_assignments = {opt: [] for opt in frequency_options}
+
+    # Frequency Assignment
+    cols = st.columns(3)
+    
+    # Create a dropdown for each frequency category
+    for i, freq in enumerate(frequency_options):
+        with cols[i]:
+            assigned = st.multiselect(
+                f"{freq}:",
+                elements,
+                default=st.session_state.frequency_assignments.get(freq, []),
+                key=f"freq_{i}"
+            )
+            st.session_state.frequency_assignments[freq] = assigned
+
+    # Validation (no duplicates)
+    all_assigned = []
+    for items in st.session_state.frequency_assignments.values():
+        all_assigned.extend(items)
+    
+    duplicates = set([x for x in all_assigned if all_assigned.count(x) > 1])
+    if duplicates:
+        st.error(f"Error: Duplicate assignments for {duplicates}. Remove extras.")
+    elif len(all_assigned) != len(elements):
+        st.warning(f"Not all elements assigned ({len(all_assigned)}/{len(elements)})")
+
+    # Store results
+    st.session_state.responses.update({
+        "frequency_assignments": st.session_state.frequency_assignments,
+    })
+
+def create_sequence_of_use_questions():
+    st.subheader("23. Sequence of Use")
+    st.markdown("""
+    **Instructions:**  
+    1. Click "Show Cockpit Display" to reveal the image.  
+    2. Note the order in which your eyes are drawn to elements.  
+    3. Answer the dropdown questions about your viewing sequence.  
+    """)
+
+    # Load image
+    cockpit_img = Image.open("ecam_1.png")
+    elements = [
+        "EPR", "EGT", "N1", 
+        "N2", "FF", "TOGA", "FOB", "Flaps Setting",
+        "Text Information Left", "Text Information Right"
+    ]
+
+    # Initialize session state
+    if "sequence_test_started" not in st.session_state:
+        st.session_state.sequence_test_started = False
+        st.session_state.sequence_answers = {}
+
+    # --- Image Display ---
+    if not st.session_state.sequence_test_started:
+        if st.button("Show Cockpit Display"):
+            st.session_state.sequence_test_started = True
+            st.rerun()
+    else:
+        st.image(cockpit_img, caption="Cockpit Display - Observe Your Natural Viewing Sequence", use_container_width=True)
+        st.success("Image locked. Answer the questions below.")
+
+    st.write("Credit: https://en.wikipedia.org/wiki/Electronic_centralised_aircraft_monitor")
+
+    # Sequence Questions    
+    # Question 1
+    first_noticed = st.selectbox(
+        "What did you notice FIRST?",
+        ["Select..."] + elements,
+        key="sequence_first"
+    )
+    
+    # Question 2 (dynamic options)
+    second_options = ["Select..."] + [e for e in elements if e != first_noticed] if first_noticed != "Select..." else elements
+    second_noticed = st.selectbox(
+        "What did you notice SECOND?",
+        second_options,
+        key="sequence_second",
+        disabled=(first_noticed == "Select...")
+    )
+    
+    # Question 3 (dynamic options)
+    if first_noticed != "Select..." and second_noticed != "Select...":
+        third_options = ["Select..."] + [e for e in elements if e not in [first_noticed, second_noticed]]
+    else:
+        third_options = ["Select..."] + elements
+        
+    third_noticed = st.selectbox(
+        "What did you notice THIRD?",
+        third_options,
+        key="sequence_third",
+        disabled=(second_noticed == "Select...")
+    )
+
+    # Store results when all questions are answered
+    if (first_noticed != "Select..." and 
+        second_noticed != "Select..." and 
+        third_noticed != "Select..."):
+        
+        st.session_state.sequence_answers = {
+            "first": first_noticed,
+            "second": second_noticed,
+            "third": third_noticed
+        }
+        
+        st.session_state.responses.update({
+            "viewing_sequence": st.session_state.sequence_answers,
+            "sequence_test_completed": True
+        })
+
+def create_importance_allocation_questions():
+    st.subheader("24. Importance")
+    st.markdown("""
+    **Instructions:**  
+    - Allocate percentage values to determine the ideal size for each element.  
+    - Total must sum to 100%.
+    """)
+
+    # Define elements (customize as needed)
+    elements = [
+        "EPR (Engine Pressure Ratio)",
+        "EGT (Exhaust Gas Temperature)",
+        "N1 (Fan Speed)",
+        "N2 (Core Speed)",
+        "FF (Fuel Flow)",
+        "Thrust Mode",
+        "FOB (Fuel On Board)",
+        "Flaps Setting",
+        "Text Information"
+    ]
+
+    # Initialize session state
+    if "importance_allocations" not in st.session_state:
+        st.session_state.importance_allocations = {elem: 0 for elem in elements}
+
+    # Allocation Interface
+    total = 0
+    allocations = {}
+    
+    for elem in elements:
+        allocations[elem] = st.slider(
+            f"{elem}:",
+            min_value=0,
+            max_value=100,
+            value=st.session_state.importance_allocations.get(elem, 10),  # Default 10%
+            key=f"alloc_{elem}",
+            help="Slide to adjust your answer. Stop when you feel the size allocation for the current element is just about right."
+        )
+        total += allocations[elem]
+
+    # --- Validation & Auto-Adjustment ---
+    st.write(f"Total Allocated: {total}%")
+    if total != 100:
+        if total > 100:
+            st.error("Over-allocated! Reduce some values.")
+        else:
+            st.warning("Under-allocated! Add remaining percentage.")
+    else:
+        st.success("Perfect allocation! (100%)")
+
+    # Store results
+    st.session_state.importance_allocations = allocations
+    st.session_state.responses.update({
+        "importance_allocations": allocations,
+        "total_allocation": total
+    })
+
+def create_visibility_questions():
+    st.subheader("25. Visibility")
+    st.markdown("""
+    **Instructions:**  
+    - Rate the visibility of each element under different conditions (1 = Invisible, 5 = Perfectly Visible).  
+    """)
+
+    # Define elements to evaluate
+    elements = [
+        "EPR Gauge", 
+        "EGT Indicator", 
+        "N1 Fan Speed",
+        "Fuel Flow Readout",
+        "Flaps Setting"
+    ]
+
+    # Load base image
+    base_img = Image.open("ecam.png")
+
+    # Condition 1: Daylight
+    st.write("**A. Ideal Lighting (Daylight)**")
+    col1_day, col2_day = st.columns(2)
+    with col1_day:
+        st.image(base_img, use_container_width=True, caption="Daylight Simulation")
+    with col2_day:
+        daylight_ratings = {}
+        for elem in elements:
+            daylight_ratings[elem] = st.slider(
+                f"{elem} visibility in daylight:",
+                1, 5, 3,
+                key=f"day_{elem}",
+                help="Slide to adjust your answer."
+            )
+
+    # Condition 2: Low Light
+    st.write("**B. Low Light (Night Operations)**")
+    lowlight_img = base_img.point(lambda p: p * 0.4)  # Darken
+    col1_night, col2_night = st.columns(2)
+    with col1_night:
+        st.image(lowlight_img, use_container_width=True, caption="Night Simulation")
+    with col2_night:
+        night_ratings = {}
+        for elem in elements:
+            night_ratings[elem] = st.slider(
+                f"{elem} visibility at night:",
+                1, 5, 3,
+                key=f"night_{elem}",
+                help="Slide to adjust your answer."
+            )
+
+    # Condition 3: Emergency Lighting
+    st.write("**C. Emergency Lighting (Red Ambient)**")
+    red_img = base_img.convert("RGB")
+    r, g, b = red_img.split()
+    red_img = Image.merge("RGB", (r, g.point(lambda p: p * 0.3), b.point(lambda p: p * 0.3)))
+    col1_red, col2_red = st.columns(2)
+    with col1_red:
+        st.image(red_img, use_container_width=True, caption="Emergency Lighting")
+    with col2_red:
+        red_ratings = {}
+        for elem in elements:
+            red_ratings[elem] = st.slider(
+                f"{elem} visibility in red light:",
+                1, 5, 3,
+                key=f"red_{elem}",
+                help="Slide to adjust your answer."
+            )
+
+    st.write("Image Credit: Anja Faulhaber, 2021")
+
+    # Store all results
+    st.session_state.visibility_ratings = {
+        "Daylight": daylight_ratings,
+        "Night": night_ratings,
+        "Emergency": red_ratings
+    }
+    st.session_state.responses.update({
+        "visibility_assessment": st.session_state.visibility_ratings
+    })
+
+def create_reachability_questions():
+    st.subheader("26. Reachability")
+    st.markdown("""
+    **Instructions:**  
+    - Please make sure that your current seating position is comfortable.  
+    - Please approximate how easily you can reach your current device.  
+    """)
+
+    # Device Reachability
+    col1, col2 = st.columns(2)
+    with col1:
+        seat_height = st.slider(
+            "Seat Height (cm from floor):",
+            1, 150, 75,
+            help="Slide to adjust your answer. Stop when you think the value is an approximation of your seat height."
+        )
+        arm_length = st.slider(
+            "Arm Length (cm):",
+            50, 100, 75,
+            help="Slide to adjust your answer. Stop when you think the value is an approximation of your arm length."
+        )
+    with col2:
+        viewing_angle = st.slider(
+            "Viewing Angle (eye to screen angle in degrees):",
+            0, 90, 45,
+            help="Slide to adjust your answer. Stop when you think the value is an approximation of your viewing angle (neglect negative angle definition)."
+        )
+        keyboard_reach = st.slider(
+            "Keyboard Reach (body to keyboard distance in cm):",
+            35, 60, 45,
+            help="Slide to adjust your answer. Stop when you think the value is an approximation of your keyboard reach."
+        )
+
+    # Store posture profile
+    device_reachability = {
+        "seat_height": seat_height,
+        "arm_length": arm_length,
+        "viewing_angle": viewing_angle,
+        "keyboard_reach": keyboard_reach
+    }
+
 def main():
     # Survey Header
     st.title("Expert Survey on Quantifying Design Principles")
@@ -1115,12 +1862,26 @@ def main():
         create_topdown_processing_questions()
         create_redundancy_gain_questions()
         create_discriminability_questions()
+        create_pictorial_realism_questions()
+        create_moving_parts_visualization()
+        create_access_cost_visualization()
+        create_proximity_compatibility_questions()
+        create_multiple_resources_questions()
+        create_predictive_aiding_questions()
+        create_memory_replacement_visualization()
+        create_consistency_questions()
 
         # Ergonomic Considerations Section
         st.header("Ergonomic Considerations")
         st.markdown("""
         Ergonomic Considerations address physical and cognitive fit between users and designs.
         """)
+
+        create_frequency_of_use_questions()
+        create_sequence_of_use_questions()
+        create_importance_allocation_questions()
+        create_visibility_questions()
+        create_reachability_questions()
 
         # Additional Comments
         st.session_state.responses["comments"] = st.text_area(

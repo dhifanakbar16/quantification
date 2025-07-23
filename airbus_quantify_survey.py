@@ -1193,9 +1193,7 @@ def create_access_cost_visualization():
     elements = [
         "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
         "Thrust Setting", "Fuel on Board", "Flap Setting", 
-        "Airspeed", "Climb Rate", "Heading Indicator", 
-        "Altimeter", "Hydraulic Warning", "Landing Gear", 
-        "Autopilot Status"
+        "dditional Text Information"
     ]
 
     # Define zones (0=lowest cost, 3=highest cost)

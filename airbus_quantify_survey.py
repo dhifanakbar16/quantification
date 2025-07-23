@@ -319,7 +319,7 @@ def create_experience_visualization():
     ax.axis('off')
 
     # Visual feedback
-    st.write(f"Current noise level: {noise_level}")
+    st.write(f"Current noise level: {noise_level:.1f}")
     
     # Store responses
     st.session_state.responses["gestalt_experience_value"] = experience_value

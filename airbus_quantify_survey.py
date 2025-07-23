@@ -141,7 +141,7 @@ def create_continuity_visualization():
     st.markdown(f"""
     **Instructions:**
     - At 1: Circles are randomly placed.
-    - At 100: Perfectly aligned.
+    - At 100: Perfectly continuous.
     """)
     
     # Constants
@@ -152,12 +152,12 @@ def create_continuity_visualization():
     
     # Slider configuration
     continuity_value = st.slider(
-        "Adjust until circles appear aligned:",
+        "Adjust until circles appear continuous:",
         min_value=1,
         max_value=100,
         value=50,
         key="gestalt_continuity_slider",
-        help=f"Slide to adjust alignment. Stop when you perceive the circles as aligned."
+        help=f"Slide to adjust alignment. Stop when you perceive the circles as continuous."
     )
     
     # Calculate current pixel offset

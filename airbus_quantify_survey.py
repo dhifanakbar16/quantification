@@ -1074,9 +1074,9 @@ def create_pictorial_realism_questions():
     realistic_layout = """
     LEFT ENGINE       RIGHT ENGINE
       |                                                |
-     ( )-------------------------------------( )
+     ( )-------------------------------( )
        \\                                              /
-        \\                                            /
+        \\                                           /
          (lEFT TANK)       (RIGHT TANK)
     """
 

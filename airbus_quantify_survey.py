@@ -938,11 +938,6 @@ def create_topdown_processing_questions():
         for item in items:
             element_counts[item] = element_counts.get(item, 0) + 1
 
-    # Display summary
-    st.markdown("**Element Placement Summary:**")
-    for element, count in element_counts.items():
-        st.write(f"- {element}: appears in {count} region(s)")
-
     # Save results
     st.session_state.responses["topdown_processing"] = {
         "grid_assignments": st.session_state.topdown_grid,

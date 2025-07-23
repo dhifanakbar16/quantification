@@ -737,7 +737,7 @@ def create_legibility_questions():
     )
     glare_opacity = glare_intensity / 50
 
-    st.write(f"Current glare opacity: {glare_intensity}")
+    st.write(f"Current glare opacity: {glare_opacity}")
 
     st.markdown(
         f'<div style="position:relative;background-color:#003366;padding:15px;border-radius:5px">'
@@ -786,7 +786,7 @@ def create_absolute_judgement_questions():
 
     # 1. Numeric Readability (Exact vs. Approximate)
     st.markdown("**A. Numeric Readability**")
-    st.markdown("Compare these two displays. Which is easier to interpret at a glance?")
+    st.markdown("Compare these two displays and rate each display on how easy it is to understand the information.")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -858,17 +858,15 @@ def create_topdown_processing_questions():
     **Instructions:**  
     - Assume all elements are placed in one square display.
     - For each horizontal region (Top/Middle/Bottom), select the cockpit elements you'd expect to see there.
-    - Elements can appear in only one region (no duplicates).
+    - Elements can now appear in multiple regions (duplicates allowed).
     - Number of elements per region can vary.
     """)
 
     # Define elements and grid
     elements = [
         "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
-        "Thrust Setting", "Fuel on Board", "Flap Setting", 
-        "Airspeed", "Climb Rate", "Heading Indicator", 
-        "Altimeter", "Hydraulic Warning", "Landing Gear", 
-        "Autopilot Status"
+        "Thrust Setting", "Fuel on Board", "Flap Setting",
+        "Additional Text Information"
     ]
     grid_labels = [
         "Top-Left", "Top-Middle", "Top-Right",
@@ -879,13 +877,6 @@ def create_topdown_processing_questions():
     # Initialize session state
     if "topdown_grid" not in st.session_state:
         st.session_state.topdown_grid = {label: [] for label in grid_labels}
-    if "used_elements" not in st.session_state:
-        st.session_state.used_elements = set()
-
-    # Reset used elements tracking
-    st.session_state.used_elements = set()
-    for label in grid_labels:
-        st.session_state.used_elements.update(st.session_state.topdown_grid.get(label, []))
 
     # TOP ROW (Horizontal)
     top_cols = st.columns(3)
@@ -893,11 +884,10 @@ def create_topdown_processing_questions():
         with top_cols[i]:
             st.markdown(f"**{label}**")
             current_selection = st.session_state.topdown_grid.get(label, [])
-            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
             
             new_selection = st.multiselect(
                 f"Select for {label}:",
-                available_elements,
+                elements,
                 default=current_selection,
                 key=f"top_select_{label}"
             )
@@ -912,11 +902,10 @@ def create_topdown_processing_questions():
         with middle_cols[i]:
             st.markdown(f"**{label}**")
             current_selection = st.session_state.topdown_grid.get(label, [])
-            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
             
             new_selection = st.multiselect(
                 f"Select for {label}:",
-                available_elements,
+                elements,
                 default=current_selection,
                 key=f"middle_select_{label}"
             )
@@ -931,11 +920,10 @@ def create_topdown_processing_questions():
         with bottom_cols[i]:
             st.markdown(f"**{label}**")
             current_selection = st.session_state.topdown_grid.get(label, [])
-            available_elements = [e for e in elements if e not in st.session_state.used_elements or e in current_selection]
             
             new_selection = st.multiselect(
                 f"Select for {label}:",
-                available_elements,
+                elements,
                 default=current_selection,
                 key=f"bottom_select_{label}"
             )
@@ -944,19 +932,22 @@ def create_topdown_processing_questions():
             if new_selection:
                 st.markdown(f"*Selected:* {', '.join(new_selection)}")
 
-    # Validation
-    all_selected = []
-    for label, items in st.session_state.topdown_grid.items():
-        all_selected.extend(items)
-    
-    duplicates = set([x for x in all_selected if all_selected.count(x) > 1])
-    if duplicates:
-        st.error(f"Error: Duplicate items found: {duplicates}. Please remove them.")
-    elif len(all_selected) != len(elements):
-        st.warning(f"Not all elements placed ({len(all_selected)}/{len(elements)})")
+    # Count how many times each element appears
+    element_counts = {}
+    for items in st.session_state.topdown_grid.values():
+        for item in items:
+            element_counts[item] = element_counts.get(item, 0) + 1
+
+    # Display summary
+    st.markdown("**Element Placement Summary:**")
+    for element, count in element_counts.items():
+        st.write(f"- {element}: appears in {count} region(s)")
 
     # Save results
-    st.session_state.responses["topdown_processing"] = st.session_state.topdown_grid
+    st.session_state.responses["topdown_processing"] = {
+        "grid_assignments": st.session_state.topdown_grid,
+        "element_counts": element_counts
+    }
 
 def create_redundancy_gain_questions():
     st.subheader("12. Redundancy Gain")

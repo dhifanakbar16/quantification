@@ -1403,7 +1403,7 @@ def create_memory_replacement_visualization():
     st.subheader("20. Replace Memory with Visual Information")
     st.markdown("""
     **Instructions:**  
-    1. Click **Show Engine Display** to view an engine schematic for 7 seconds.  
+    1. Click **Show Engine Display** to view an engine schematic for 9 seconds.  
     2. After it disappears, recall and enter as many details as possible.  
     """)
 
@@ -1420,7 +1420,7 @@ def create_memory_replacement_visualization():
     if not st.session_state.memory_test_started:
         if st.button("Show Engine Display"):
             st.session_state.memory_test_started = True
-            st.session_state.memory_test_end_time = time.time() + 7 
+            st.session_state.memory_test_end_time = time.time() + 9
             st.rerun()
 
     else:
@@ -1438,7 +1438,7 @@ def create_memory_replacement_visualization():
     # --- Recall Phase ---
     if "memory_test_end_time" in st.session_state and time.time() > st.session_state.memory_test_end_time:
         recalled = st.text_area(
-            "List all details you remember (example: engine rpm, fuel flow, and so on):",
+            "List all details you remember, it can be as simple as descriptions of shapes and words (example: circles, a line, N1, and so on), or you can also write down the exact element that you saw (example: engine rpm, fuel flow, and so on):",
             height=200,
             key="memory_recall"
         )

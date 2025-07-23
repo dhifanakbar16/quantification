@@ -33,14 +33,15 @@ def save_responses_to_csv(responses):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"design_survey_responses_{timestamp}.csv"
     
+    # Ensure responses are flattened (redundant check)
+    if any(isinstance(v, (dict, list)) for v in responses.values()):
+        responses = flatten_dict(responses)
+    
     # Convert responses to DataFrame
     df = pd.DataFrame([responses])
     
-    # Write to CSV (append if file exists)
-    if not os.path.exists(filename):
-        df.to_csv(filename, index=False)
-    else:
-        df.to_csv(filename, mode='a', header=False, index=False)
+    # Write to CSV (overwrite if file exists)
+    df.to_csv(filename, index=False)
     
     return filename
 
@@ -60,13 +61,13 @@ def send_email_with_results(responses):
         
         msg.attach(MIMEText(body, 'plain'))
         
-        # Attach CSV
-        df = pd.DataFrame([responses])
-        csv_data = df.to_csv(index=False)
+        # Attach CSV (ensure data is flattened)
+        csv_data = pd.DataFrame([responses]).to_csv(index=False)
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(csv_data.encode())
         encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment', filename=f"survey_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")
+        part.add_header('Content-Disposition', 'attachment', 
+                       filename=f"survey_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")
         msg.attach(part)
         
         # Connect to server and send
@@ -1928,30 +1929,23 @@ def main():
         submitted = st.button("Submit Survey")
             
         if submitted:
-            # Validate all responses are complete (optional)
+            # Validate required fields (example)
             if not st.session_state.responses.get("profession"):
                 st.error("Please complete all required questions")
             else:
                 st.session_state.submitted = True
                 
-                # Save responses to CSV (ensure all nested dictionaries are flattened)
+                # Flatten responses (redundant if already done)
                 flat_responses = flatten_dict(st.session_state.responses)
-                csv_filename = save_responses_to_csv(flat_responses)
                 
-                # Send email
+                # Save and email
+                csv_filename = save_responses_to_csv(flat_responses)
                 email_sent = send_email_with_results(flat_responses)
                 
                 if email_sent:
                     st.success("Survey submitted successfully! Results have been saved and emailed.")
                 else:
                     st.success("Survey submitted successfully! (Email notification failed)")
-                
-                st.download_button(
-                    label="Download Your Responses",
-                    data=pd.DataFrame([flat_responses]).to_csv(index=False),
-                    file_name=csv_filename,
-                    mime="text/csv"
-                )
 
 if __name__ == "__main__":
     main()

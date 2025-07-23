@@ -9,10 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Arc
 import time
-from matplotlib.animation import FuncAnimation
 from PIL import Image
-from PIL import ImageFilter
-import random
+from email.mime.base import MIMEBase
+from email import encoders
 
 # Email configuration
 EMAIL_HOST = 'smtp.gmail.com'
@@ -54,12 +53,21 @@ def send_email_with_results(responses):
         msg['To'] = RECIPIENT_EMAIL
         msg['Subject'] = f"New Design Survey Response - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
         
-        # Create email body
+        # Create email body with all responses
         body = "New survey response received:\n\n"
         for question, answer in responses.items():
             body += f"{question}: {answer}\n"
         
         msg.attach(MIMEText(body, 'plain'))
+        
+        # Attach CSV
+        df = pd.DataFrame([responses])
+        csv_data = df.to_csv(index=False)
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(csv_data.encode())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment', filename=f"survey_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")
+        msg.attach(part)
         
         # Connect to server and send
         server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
@@ -1799,6 +1807,22 @@ def create_reachability_questions():
         "keyboard_reach": keyboard_reach
     }
 
+def flatten_dict(d, parent_key='', sep='_'):
+    """
+    Flatten nested dictionaries for CSV storage
+    """
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        elif isinstance(v, list):
+            # Convert lists to strings for CSV
+            items.append((new_key, str(v)))
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
 def main():
     # Survey Header
     st.title("Expert Survey on Quantifying Design Principles")
@@ -1833,6 +1857,17 @@ def main():
 
     Thank you for your careful participation.
     """)
+
+    if not st.session_state.submitted:
+        # Add profession question before Gestalt Principles
+        st.session_state.responses["profession"] = st.selectbox(
+            "**What is your current profession or field of work?**",
+            ["Pilot", "Operators", "Aerospace Engineer", "UI/UX Designer", "Human Factors Engineers", 
+             "Researcher", "Student", "Other (please specify)"],
+            key="profession"
+        )
+        if st.session_state.responses["profession"] == "Other (please specify)":
+            st.session_state.responses["profession_other"] = st.text_input("Please specify your profession")
     
     if not st.session_state.submitted:
         # Gestalt Principles Section
@@ -1888,20 +1923,22 @@ def main():
             key="comments"
         )
         
-        # All other questions
-        with st.form("design_survey"):  
+        # Submit button (now outside any form)
+        submitted = st.button("Submit Survey")
             
-            # Submit button
-            submitted = st.form_submit_button("Submit Survey")
-            
-            if submitted:
+        if submitted:
+            # Validate all responses are complete (optional)
+            if not st.session_state.responses.get("profession"):
+                st.error("Please complete all required questions")
+            else:
                 st.session_state.submitted = True
                 
-                # Save responses to CSV
-                csv_filename = save_responses_to_csv(st.session_state.responses)
+                # Save responses to CSV (ensure all nested dictionaries are flattened)
+                flat_responses = flatten_dict(st.session_state.responses)
+                csv_filename = save_responses_to_csv(flat_responses)
                 
                 # Send email
-                email_sent = send_email_with_results(st.session_state.responses)
+                email_sent = send_email_with_results(flat_responses)
                 
                 if email_sent:
                     st.success("Survey submitted successfully! Results have been saved and emailed.")
@@ -1910,16 +1947,10 @@ def main():
                 
                 st.download_button(
                     label="Download Your Responses",
-                    data=pd.DataFrame([st.session_state.responses]).to_csv(index=False),
+                    data=pd.DataFrame([flat_responses]).to_csv(index=False),
                     file_name=csv_filename,
                     mime="text/csv"
                 )
-    else:
-        st.success("Thank you for completing the survey!")
-        if st.button("Take survey again"):
-            st.session_state.submitted = False
-            st.session_state.responses = {}
-            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()

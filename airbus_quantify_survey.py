@@ -1453,28 +1453,39 @@ def create_consistency_questions():
     st.subheader("21. Consistency")
     st.markdown("""
     **Instructions:**  
-    1. Compare pairs of elements below.  
-    2. Rate their consistency on a 1-5 scale (1 = Inconsistent, 5 = Identical) based on how they should be designed against each other.  
+    - Compare pairs of display elements below  
+    - Rate their consistency on a 1-5 scale (1 = Inconsistent, 5 = Identical)  
+    - Consider visual design, behavior, and interaction patterns  
     """)
 
-    # Define element pairs to compare
+    # Define element pairs to compare with engine display focus
     consistency_pairs = [
-        ("Engine RPM Gauge", "Exhaust Temp Gauge"),
-        ("Primary Flight Display Colors", "Navigation Display Colors"),
-        ("Warning Alert Sound", "System Notification Sound"),
-        ("Button 'AUTO THRUST' Style", "Button 'FLAP EXTEND' Style"),
-        ("Menu Navigation Pattern", "Submenu Navigation Pattern")
+        ("Engine Pressure Ratio (EPR) Display", "N1 Fan Speed Display"),
+        ("Fuel Flow Indicator", "Oil Temperature Indicator"),
+        ("Warning Alert Sound (continuous pulsating horn)", "System Notification Sound (single chime)"),
+        ("Engine Start Button", "Engine Shutdown Button"),
+        ("ECAM Engine Page Layout", "ECAM System Page Layout")
     ]
+
+    # Sound descriptions
+    st.markdown("""
+    <div style="background-color:#f0f0f0; padding:10px; border-radius:5px; margin-bottom:20px;">
+    <b>Sound Reference:</b><br>
+    • <b>Warning Alert</b>: Continuous pulsating horn (e.g., "BEEP-BEEP-BEEP" for system failures)<br>
+    • <b>System Notification</b>: Single chime (e.g., "DING" for routine updates)
+    </div>
+    """, unsafe_allow_html=True)
 
     # --- Pair Comparison ---
     ratings = {}
     for pair in consistency_pairs:
         key = f"{pair[0]} ↔ {pair[1]}"
-        rating = st.slider(
-            f"How consistent are **{pair[0]}** and **{pair[1]}**?",
-            1, 5, 3,
+        rating = st.radio(
+            f"How consistent should <b>{pair[0]}</b> and <b>{pair[1]}</b> be?".format(pair[0], pair[1]),
+            options=[1, 2, 3, 4, 5],
+            horizontal=True,
             key=f"consistency_{pair[0]}_{pair[1]}",
-            help="Slide to adjust your answer,"
+            help="1 = Completely different, 3 = Some consistency, 5 = Identical design"
         )
         ratings[key] = rating
 

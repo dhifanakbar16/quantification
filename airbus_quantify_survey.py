@@ -1756,12 +1756,19 @@ def create_visibility_questions():
     })
 
 def create_reachability_questions():
-    st.subheader("26. Reachability")
+    st.subheader("26. Display Ergonomics")
     st.markdown("""
     **Instructions:**  
-    - Please make sure that your current seating position is comfortable.  
-    - Please approximate how easily you can reach your current device.  
+    - Please ensure your seating position is comfortable before answering  
+    - Provide accurate measurements for your current workstation setup  
     """)
+
+    # Open-ended screen resolution question
+    st.text_input(
+        "What is your display's screen resolution? (e.g., 1920x1080, 2560x1440)",
+        key="screen_resolution",
+        help="Enter your display's native resolution in width x height format"
+    )
 
     # Device Reachability
     col1, col2 = st.columns(2)
@@ -1769,32 +1776,36 @@ def create_reachability_questions():
         seat_height = st.slider(
             "Seat Height (cm from floor):",
             1, 150, 75,
-            help="Slide to adjust your answer. Stop when you think the value is an approximation of your seat height."
+            help="Measure from floor to seat surface while seated normally"
         )
         arm_length = st.slider(
             "Arm Length (cm):",
             50, 100, 75,
-            help="Slide to adjust your answer. Stop when you think the value is an approximation of your arm length."
+            help="Measure from shoulder to fingertips with arm extended"
         )
     with col2:
         viewing_angle = st.slider(
-            "Viewing Angle (eye to screen angle in degrees):",
-            0, 90, 45,
-            help="Slide to adjust your answer. Stop when you think the value is an approximation of your viewing angle (neglect negative angle definition)."
+            "Viewing Angle (degrees from horizontal):",
+            -30, 30, 0,
+            help="0° = screen centered at eye level. Positive = looking up, Negative = looking down",
+            format="%d°"
         )
         keyboard_reach = st.slider(
-            "Keyboard Reach (body to keyboard distance in cm):",
+            "Keyboard Reach (cm from body):",
             35, 60, 45,
-            help="Slide to adjust your answer. Stop when you think the value is an approximation of your keyboard reach."
+            help="Measure from torso to keyboard with arms comfortably extended"
         )
 
-    # Store posture profile
-    device_reachability = {
-        "seat_height": seat_height,
-        "arm_length": arm_length,
-        "viewing_angle": viewing_angle,
-        "keyboard_reach": keyboard_reach
-    }
+    # Store all measurements
+    st.session_state.responses.update({
+        "display_ergonomics": {
+            "screen_resolution": st.session_state.screen_resolution,
+            "seat_height_cm": seat_height,
+            "arm_length_cm": arm_length,
+            "viewing_angle_deg": viewing_angle,
+            "keyboard_reach_cm": keyboard_reach
+        }
+    })
 
 def flatten_dict(d, parent_key='', sep='_'):
     """

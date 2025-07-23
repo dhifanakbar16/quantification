@@ -148,7 +148,7 @@ def create_continuity_visualization():
     DPI = 100 
     FIG_WIDTH_INCHES = 8
     FIG_HEIGHT_INCHES = 5
-    MAX_PIXEL_OFFSET = 100
+    MAX_PIXEL_OFFSET = 200
     
     # Slider configuration
     continuity_value = st.slider(

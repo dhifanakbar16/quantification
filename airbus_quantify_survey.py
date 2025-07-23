@@ -1193,7 +1193,7 @@ def create_access_cost_visualization():
     elements = [
         "Engine RPM", "Exhaust Gas Temperature", "Fuel Flow", 
         "Thrust Setting", "Fuel on Board", "Flap Setting", 
-        "dditional Text Information"
+        "Additional Text Information"
     ]
 
     # Define zones (0=lowest cost, 3=highest cost)
@@ -1323,7 +1323,8 @@ def create_multiple_resources_questions():
                 "Perceptual:",
                 channels["Perceptual"],
                 default=[],
-                key=f"perceptual_{task}"
+                key=f"perceptual_{task}",
+                help="Perceptual: How easily users can detect and distinguish interface elements. Visual: Information perceived through sight, such as text, color, and layout. Auditory: Information conveyed through sound, like alerts or spoken cues. Haptic: Feedback delivered through touch, such as vibrations or force."
             )
             selected_channels.extend(perceptual)
         
@@ -1333,7 +1334,8 @@ def create_multiple_resources_questions():
                 "Cognitive:",
                 channels["Cognitive"],
                 default=[], 
-                key=f"cognitive_{task}"
+                key=f"cognitive_{task}",
+                help="Cognitive: Mental processes involved in understanding, processing, and responding to information. Perception: Interpreting sensory input to form a meaningful understanding of the environment. Working Memory: Short-term mental storage used to hold and manipulate information during tasks. Decision Making: The cognitive process of selecting a course of action among multiple options."
             )
             selected_channels.extend(cognitive)
         
@@ -1343,7 +1345,8 @@ def create_multiple_resources_questions():
                 "Response:",
                 channels["Response"],
                 default=[],
-                key=f"response_{task}"
+                key=f"response_{task}",
+                help="Response: The user's action following perception and decision, completing the interaction loop. Manual: Physical responses involving hands or fingers, such as pressing buttons or using controls. Vocal: Spoken responses or commands given by the user. None: No active response required from the user; the system proceeds automatically or passively."
             )
             selected_channels.extend(response)
         

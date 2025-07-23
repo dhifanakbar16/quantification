@@ -1072,15 +1072,12 @@ def create_pictorial_realism_questions():
     """
     
     realistic_layout = """
-        LEFT WING                     RIGHT WING
-         _______                       _______
-        /       \\                     /       \\
-    (O)           \\                 /           (O)
-        \\           \\_______________/           /
-         \\                                     /
-          \\___________________________________/
-                   \\                 /
-                    (E)             (E)
+    LEFT WING       RIGHT WING
+      |               |
+     ( )-------------( )
+       \\             /
+        \\           /
+         (E)       (E)
     """
 
     col1, col2 = st.columns(2)

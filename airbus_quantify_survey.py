@@ -1852,6 +1852,7 @@ def main():
     - 🌡️ You may take the survey in any quiet room or workspace — lighting and temperature may vary, as long as your view of the screen is clear.
     - ⏱️ Allocate enough uninterrupted time to thoughtfully consider each question.
     - 🔁 You may go back and adjust your answers before final submission.
+    - 🙏 I ask for your patience when filling out the form, sometimes the website needs to update twice to record your answer.
 
     These conditions help minimize distractions, perception errors, or visibility-related inconsistencies.
 

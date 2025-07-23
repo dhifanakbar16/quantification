@@ -735,7 +735,7 @@ def create_legibility_questions():
         key="legibility_glare",
         help="Slide to change the glare opacity. Stop when you face difficulty in reading the text."
     )
-    glare_opacity = glare_intensity / 200
+    glare_opacity = glare_intensity / 50
 
     st.write(f"Current glare opacity: {glare_intensity}")
 

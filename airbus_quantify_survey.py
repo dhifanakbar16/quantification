@@ -1072,12 +1072,12 @@ def create_pictorial_realism_questions():
     """
     
     realistic_layout = """
-    LEFT WING       RIGHT WING
-      |               |
-     ( )-------------( )
-       \\             /
-        \\           /
-         (E)       (E)
+    LEFT ENGINE       RIGHT ENGINE
+      |                           |
+     ( )-------------------------( )
+       \\                         /
+        \\                       /
+         (lEFT TANK)       (RIGHT TANK)
     """
 
     col1, col2 = st.columns(2)

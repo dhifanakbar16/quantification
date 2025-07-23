@@ -702,7 +702,7 @@ def create_legibility_questions():
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 3. Color Differentiation Test
-    st.markdown("**C. Color Differentiation (Critical Pairs)**")
+    st.markdown("**C. Color Differentiation**")
     color_pairs = [
         ("red", "green", "WARNING vs NORMAL"),
         ("blue", "purple", "ACTIVE vs STANDBY"),
@@ -717,10 +717,10 @@ def create_legibility_questions():
             st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label} {color2}</p>', 
                        unsafe_allow_html=True)
         score = st.slider(
-            f"How distinct are these colors for {label}? (1 = identical, 100 = very distinct)",
+            f"How distinct are these colors for {label}? (1 = identical, 10 = very distinct)",
             min_value=1, max_value=10, value=5,
             key=f"legibility_color_{color1}_{color2}",
-            help="Slide to adjust your answer."
+            help="Slide to adjust your answer. The slider does not change any appearances."
         )
         st.session_state.responses[f"legibility_color_{color1.replace('#','')}_{color2.replace('#','')}"] = score
 
@@ -735,7 +735,7 @@ def create_legibility_questions():
         key="legibility_glare",
         help="Slide to change the glare opacity. Stop when you face difficulty in reading the text."
     )
-    glare_opacity = glare_intensity / 100
+    glare_opacity = glare_intensity / 200
 
     st.write(f"Current glare opacity: {glare_intensity}")
 

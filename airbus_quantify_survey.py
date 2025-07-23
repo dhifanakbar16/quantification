@@ -1054,7 +1054,7 @@ def create_pictorial_realism_questions():
     st.subheader("14. Pictorial Realism")
     st.markdown("""
     **Instructions:** 
-    - Evaluate how intuitively users interpret arbitrary vs realistic layouts.
+    - Evaluate how intuitively users interpret orderly vs realistic layouts.
     - Assume left/right wing tanks feed engines 1/2 respectively.
     """)
 
@@ -1064,8 +1064,8 @@ def create_pictorial_realism_questions():
     engine1 = "✈️"
     engine2 = "✈️"
 
-    # Arbitrary vs. realistic layouts
-    arbitrary_layout = f"""
+    # Orderly vs. realistic layouts
+    orderly_layout = f"""
     ```
     [Tank A] ---> [Engine 1]
     [Tank B] ---> [Engine 2]
@@ -1082,8 +1082,8 @@ def create_pictorial_realism_questions():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**Arbitrary Layout**")
-        st.code(arbitrary_layout, language="text")
+        st.markdown("**Orderly Layout**")
+        st.code(orderly_layout, language="text")
     
     with col2:
         st.markdown("**Realistic Layout**")
@@ -1094,14 +1094,14 @@ def create_pictorial_realism_questions():
     rating_col1, rating_col2 = st.columns(2)
     
     with rating_col1:
-        arbitrary_pref = st.radio(
-            "Arbitrary Layout (1 = unintuitive, 5 = intuitive)",
+        orderly_pref = st.radio(
+            "Orderly Layout (1 = unintuitive, 5 = intuitive)",
             [1, 2, 3, 4, 5],
             horizontal=True,
-            key="arbitrary_layout",
-            help="Please choose one of the option."
+            key="orderly_layout",
+            help="Please choose one of the option. Orderly layout follows modern design to classify and organize information in an oderly and minimalistic way."
         )
-        st.session_state.responses["arbitrary_layout_rating"] = arbitrary_pref
+        st.session_state.responses["orderly_layout_rating"] = orderly_pref
     
     with rating_col2:
         realistic_pref = st.radio(
@@ -1109,7 +1109,7 @@ def create_pictorial_realism_questions():
             [1, 2, 3, 4, 5],
             horizontal=True,
             key="realistic_layout",
-            help="Please choose one of the option."
+            help="Please choose one of the option. Realistic layout follows the simplified and scaled down of the realistic placement of the elements presented."
         )
         st.session_state.responses["realistic_layout_rating"] = realistic_pref
 

@@ -705,20 +705,20 @@ def create_legibility_questions():
     # 3. Color Differentiation Test
     st.markdown("**C. Color Differentiation**")
     color_pairs = [
-        ("red", "green", "WARNING vs NORMAL"),
-        ("blue", "purple", "ACTIVE vs STANDBY"),
-        ("orange", "yellow", "CAUTION vs ADVISORY")
+        ("red", "green", "WARNING", "NORMAL"),
+        ("blue", "purple", "ACTIVE", "STANDBY"),
+        ("orange", "yellow", "CAUTION", "ADVISORY")
     ]
-    for color1, color2, label in color_pairs:
+    for color1, color2, label1, label2 in color_pairs:
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(f'<p style="color:{color1};font-size:12pt">■ {label} {color1}</p>', 
+            st.markdown(f'<p style="color:{color1};font-size:12pt">■ {label1} {color1}</p>', 
                        unsafe_allow_html=True)
         with col2:
-            st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label} {color2}</p>', 
+            st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label2} {color2}</p>', 
                        unsafe_allow_html=True)
         score = st.slider(
-            f"How distinct are these colors for {label}? (1 = identical, 10 = very distinct)",
+            f"How distinct are these colors? (1 = identical, 10 = very distinct)",
             min_value=1, max_value=10, value=5,
             key=f"legibility_color_{color1}_{color2}",
             help="Slide to adjust your answer. The slider does not change any appearances."

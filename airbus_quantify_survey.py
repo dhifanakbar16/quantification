@@ -712,10 +712,10 @@ def create_legibility_questions():
     for color1, color2, label1, label2 in color_pairs:
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(f'<p style="color:{color1};font-size:12pt">■ {label1} {color1}</p>', 
+            st.markdown(f'<p style="color:{color1};font-size:12pt">■ {label1}</p>', 
                        unsafe_allow_html=True)
         with col2:
-            st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label2} {color2}</p>', 
+            st.markdown(f'<p style="color:{color2};font-size:12pt">■ {label2}</p>', 
                        unsafe_allow_html=True)
         score = st.slider(
             f"How distinct are these colors? (1 = identical, 10 = very distinct)",

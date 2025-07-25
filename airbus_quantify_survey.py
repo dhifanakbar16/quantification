@@ -820,6 +820,13 @@ def create_absolute_judgement_questions():
     
     st.session_state.responses["absjudge_numeric_diff"] = approx_score - precise_score
 
+    # New open-ended question about preference
+    st.text_area(
+        "Which type of information display do you prefer in flight operations and why? (Absolute values vs. Approximate values)",
+        key="absjudge_preference_explanation",
+        help="Please explain your preference between precise numbers versus rounded approximations in aircraft displays"
+    )
+
     # 2. Color Gradients (Subtle Differences)
     st.markdown("**B. Color Gradient Interpretation**")
     st.markdown("Can you distinguish these color-coded status levels without exact hues?")

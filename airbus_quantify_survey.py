@@ -846,7 +846,7 @@ def create_topdown_processing_questions():
     st.markdown("""
     **Instructions:**  
     - Assume all elements are placed in one square display.
-    - For each horizontal region (Top/Middle/Bottom), select the cockpit elements you'd expect to see there.
+    - For each region, select the cockpit elements you'd expect to see there.
     - Elements can appear in multiple regions (duplicates allowed).
     - Number of elements per region can vary.
     """)

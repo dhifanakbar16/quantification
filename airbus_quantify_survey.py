@@ -1014,7 +1014,7 @@ def create_redundancy_gain_questions():
         }
 
     # Optional justification
-    st.text_input("Briefly explain your choice (optional):", key="redundancy_reason")
+    st.text_input("Briefly explain your decision to the answer above and does all elements require redundancies?", key="redundancy_reason")
 
 import streamlit as st
 

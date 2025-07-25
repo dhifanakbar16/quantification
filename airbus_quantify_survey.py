@@ -878,7 +878,8 @@ def create_topdown_processing_questions():
                 f"Select for {label}:",
                 elements,
                 default=current_selection,
-                key=f"top_select_{label}"
+                key=f"top_select_{label}",
+                help="The region describe the position relative to the display, assuming it is a square. Please select the elements that you would expect to see in this part of the display."
             )
             st.session_state.topdown_grid[label] = new_selection
             
@@ -896,7 +897,8 @@ def create_topdown_processing_questions():
                 f"Select for {label}:",
                 elements,
                 default=current_selection,
-                key=f"middle_select_{label}"
+                key=f"middle_select_{label}",
+                help="The region describe the position relative to the display, assuming it is a square. Please select the elements that you would expect to see in this part of the display."
             )
             st.session_state.topdown_grid[label] = new_selection
             
@@ -914,7 +916,8 @@ def create_topdown_processing_questions():
                 f"Select for {label}:",
                 elements,
                 default=current_selection,
-                key=f"bottom_select_{label}"
+                key=f"bottom_select_{label}",
+                help="The region describe the position relative to the display, assuming it is a square. Please select the elements that you would expect to see in this part of the display."
             )
             st.session_state.topdown_grid[label] = new_selection
             

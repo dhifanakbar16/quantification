@@ -822,7 +822,7 @@ def create_absolute_judgement_questions():
 
     # New open-ended question about preference
     st.text_area(
-        "Which type of information display do you prefer to be displayed and why? (absolute values vs approximate values)",
+        "Which type of information display do you prefer to be displayed and why? (precise values vs approximate values)",
         key="absjudge_preference_explanation",
         help="Please explain your preference between precise numbers versus rounded approximations in aircraft displays."
     )

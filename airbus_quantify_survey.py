@@ -1163,7 +1163,7 @@ def create_moving_parts_visualization():
             if i < num_moving:
                 values[i] = f"{np.random.randint(100,999)}"  # Update only moving circles
             
-            y_pos = 0.5 + (0.3 * np.sin(time.time() + i) if i < num_moving else 0.5
+            y_pos = 0.5 + (0.3 * np.sin(time.time()) + i) if i < num_moving else 0.5
             alpha = 0.7 if i < num_moving else 0.2
             
             circle = plt.Circle((i+1, y_pos), 0.4, color='blue', alpha=alpha)

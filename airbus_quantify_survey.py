@@ -841,18 +841,6 @@ def create_absolute_judgement_questions():
     )
     st.session_state.responses["absjudge_color_diff"] = gradient_score
 
-    # 3. Relative vs Absolute Judgement
-    st.markdown("**C. Relative vs Absolute Judgement**")
-    st.markdown("Which of these altitude displays is easier to interpret quickly?")
-    
-    alt_option = st.radio(
-        "Options:",
-        ["Absolute: `ALT 12453 ft`", "Relative: `+500 ft` (from target)", "Both are equal"],
-        key="absjudge_altitude",
-        help="Select the option you think suits the question best."
-    )
-    st.session_state.responses["absjudge_alt_preference"] = alt_option
-
 def create_topdown_processing_questions():
     st.subheader("11. Top-Down Processing")
     st.markdown("""

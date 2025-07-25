@@ -1116,88 +1116,68 @@ def create_moving_parts_visualization():
     st.subheader("15. Moving Parts")
     st.markdown("""
     **Instructions:**
-    - Watch as circles begin moving and displaying changing values
-    - Select when the number of moving elements becomes overwhelming
-    - Click "Update Animation" to apply your threshold setting
+    - Play the animation as more circles start moving.
+    - Select the point where you think that there are too many moving elements.
     """)
 
     # User selects when tracking becomes difficult
     difficulty_threshold = st.slider(
-        "Set your threshold for too many moving elements:",
+        "Adjust until the number of moving circles becomes overwhelming to see:",
         min_value=1, 
-        max_value=20,  # Increased to 20 circles
-        value=8,
+        max_value=10, 
+        value=5,
         key="moving_parts_threshold",
-        help="Adjust then click Update Animation to see your selected threshold"
+        help="Adjust your answer on the slider. Stop when you feel the animation becomes hard to follow"
     )
 
-    # Animation setup with better performance
-    fig, ax = plt.subplots(figsize=(12, 4))  # Wider figure for 20 circles
-    ax.set_xlim(0, 21)
+    # Animation setup
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.set_xlim(0, 11)
     ax.set_ylim(-0.5, 1.5)
     ax.axis('off')
     
-    n_circles = 20  # Increased to 20 circles
+    n_circles = 10
     circles = []
-    texts = []
-    values = [f"{np.random.randint(100,999)}" for _ in range(n_circles)]  # Initial random values
-    
     for i in range(n_circles):
         circle = plt.Circle((i+1, 0.5), 0.4, color='blue', alpha=0.7)
         ax.add_patch(circle)
-        text = ax.text(i+1, 0.5, values[i], 
-                      ha='center', va='center', 
-                      color='white', fontsize=8)
         circles.append(circle)
-        texts.append(text)
+        ax.text(i+1, 0.5, str(i+1), ha='center', va='center', color='white')
 
-    # Improved animation function
-    def animate_circles(num_moving):
-        ax.clear()
-        ax.set_xlim(0, 21)
-        ax.set_ylim(-0.5, 1.5)
-        ax.axis('off')
+    # Animation update function
+    def update(frame):
+        current_moving = (frame // 20) % 10 + 1  # Cycles 1-10 every 2 sec (20 frames * 0.1s)
         
-        # Update values (simulate changing instrument readings)
-        for i in range(n_circles):
-            if i < num_moving:
-                values[i] = f"{np.random.randint(100,999)}"  # Update only moving circles
-            
-            y_pos = 0.5 + (0.3 * np.sin(time.time()) + i) if i < num_moving else 0.5
-            alpha = 0.7 if i < num_moving else 0.2
-            
-            circle = plt.Circle((i+1, y_pos), 0.4, color='blue', alpha=alpha)
-            ax.add_patch(circle)
-            ax.text(i+1, y_pos, values[i], 
-                   ha='center', va='center', 
-                   color='white', fontsize=8)
+        for i, circle in enumerate(circles):
+            if i < current_moving:
+                # Animate moving up and down
+                y_pos = 0.5 + 0.3 * np.sin(frame * 0.2 + i * 0.5)
+                circle.set_center((i+1, y_pos))
+                circle.set_alpha(0.7)
+            else:
+                circle.set_center((i+1, 0.5))
+                circle.set_alpha(0.2)
         
-        ax.set_title(f"{num_moving} Moving Elements (Current Threshold: {difficulty_threshold})", 
-                    fontsize=12)
-        return fig
+        ax.set_title(f"{current_moving} Moving Circles", fontsize=12)
+        return circles
 
-    # Display current threshold animation
-    st.write(f"### Displaying {difficulty_threshold} moving elements")
-    animate_circles(difficulty_threshold)
-    st.pyplot(fig)
-    
+    st.write(f"Current moving parts threshold: {difficulty_threshold} moving circles")
+
+    # Create animation (simulated for Streamlit)
+    # Note: Streamlit doesn't support FuncAnimation natively, so we simulate frames
+    if st.button("Play Animation"):
+        placeholder = st.empty()
+        for frame in range(200):  # 200 frames (~20 sec loop)
+            current_moving = (frame // 20) % 10 + 1
+            update(frame)
+            placeholder.pyplot(fig, clear_figure=False)
+            time.sleep(0.1)
+
     # Store metrics
     st.session_state.responses.update({
         "moving_parts_threshold": difficulty_threshold,
-        "moving_parts_assessment": "Optimal" if difficulty_threshold <= 5 else 
-                                 "Moderate" if difficulty_threshold <= 10 else
-                                 "High Load"
+        "moving_parts_assessment": "Optimal" if difficulty_threshold <= 3 else "High Load"
     })
-
-    # Optional: Add a real-time animation toggle
-    if st.checkbox("Show continuous animation preview (may affect performance)"):
-        placeholder = st.empty()
-        while True:
-            animate_circles(difficulty_threshold)
-            placeholder.pyplot(fig)
-            time.sleep(0.1)
-            if not st.session_state.get('animation_running', True):
-                break
 
 def create_access_cost_visualization():
     st.subheader("16. Minimize Information Access Cost")

@@ -1076,7 +1076,7 @@ def create_pictorial_realism_questions():
      ( )-----------------------------( )
        \\                                              /
         \\                                           /
-         (lEFT TANK)       (RIGHT TANK)
+         (LEFT TANK)       (RIGHT TANK)
     """
 
     col1, col2 = st.columns(2)

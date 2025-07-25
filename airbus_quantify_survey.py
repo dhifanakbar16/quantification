@@ -781,7 +781,7 @@ def create_absolute_judgement_questions():
     st.subheader("10. Avoid Absolute Judgement Limits")
     st.markdown("""
     **Instructions:**
-    - Please evaluate whether the display requires you to make precise judgements (e.g., exact values, small differences).
+    - Please evaluate whether the display requires you to make precise judgements (exact values, small differences).
     - Please rate how easily you can interpret the information without needing perfect precision.
     """)
 
@@ -822,9 +822,9 @@ def create_absolute_judgement_questions():
 
     # New open-ended question about preference
     st.text_area(
-        "Which type of information display do you prefer in flight operations and why? (Absolute values vs. Approximate values)",
+        "Which type of information display do you prefer to be displayed and why? (absolute values vs approximate values)",
         key="absjudge_preference_explanation",
-        help="Please explain your preference between precise numbers versus rounded approximations in aircraft displays"
+        help="Please explain your preference between precise numbers versus rounded approximations in aircraft displays."
     )
 
     # 2. Color Gradients (Subtle Differences)

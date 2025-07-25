@@ -1755,7 +1755,7 @@ def create_visibility_questions():
     })
 
 def create_reachability_questions():
-    st.subheader("26. Display Ergonomics")
+    st.subheader("26. Reachability")
     st.markdown("""
     **Instructions:**  
     - Please ensure your seating position is comfortable before answering  

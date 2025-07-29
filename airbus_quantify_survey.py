@@ -1854,6 +1854,41 @@ def main():
     Thank you for your careful participation.
     """)
 
+    st.divider()
+
+    # Identification question 
+    st.markdown("""
+    **Identification for Data Management**
+    
+    Since the questionnaire is anonymous, we require you to answer the following question so that in the future, 
+    if you wish to destroy the data, you can identify your set of data and tell us which to destroy. 
+    
+    Please type in capital letters and in continuous format:
+    - First two letters of mother's first name
+    - First two letters of father's first name
+    - Month of mother's birth month (two digits)
+    - Month of father's birth month (two digits)
+    
+    Example: Heike, Franz, March, May → HEFR0305
+    """)
+    
+    identification_code = st.text_input(
+        "**Enter your identification code:**",
+        key="identification_code",
+        max_chars=8,
+        help="Format: First 2 letters of mother's name + first 2 letters of father's name + mother's birth month (2 digits) + father's birth month (2 digits)"
+    )
+    
+    # Validate format if provided
+    if identification_code and len(identification_code) == 8:
+        try:
+            # Check if last 4 characters are digits representing months (01-12)
+            month_part = identification_code[4:]
+            if not (month_part.isdigit() and 1 <= int(month_part[:2]) <= 12 and 1 <= int(month_part[2:]) <= 12):
+                st.warning("Please ensure the month parts are valid (01-12 for each). Example: HEFR0305")
+        except:
+            st.warning("Please check the format. Example: HEFR0305")
+
     if not st.session_state.submitted:
         # Add profession question before Gestalt Principles
         st.session_state.responses["profession"] = st.selectbox(

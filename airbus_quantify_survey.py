@@ -1888,6 +1888,8 @@ def main():
                 st.warning("Please ensure the month parts are valid (01-12 for each). Example: HEFR0305")
         except:
             st.warning("Please check the format. Example: HEFR0305")
+    
+    st.session_state.responses["identification_code"] = identification_code
 
     if not st.session_state.submitted:
         # Add profession question before Gestalt Principles

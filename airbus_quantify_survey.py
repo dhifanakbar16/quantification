@@ -202,10 +202,6 @@ def create_continuity_visualization():
     # Visual feedback
     st.write(f"Current average offset: {avg_offset_px} pixels")
     
-    # Visual reference at high alignment
-    if continuity_value > 85:
-        ax.plot(x_base, y_base, '--', color='gray', alpha=0.2, linewidth=1)
-    
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')

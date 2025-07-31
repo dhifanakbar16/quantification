@@ -1372,6 +1372,10 @@ def create_predictive_aiding_questions():
         help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
     )
 
+    st.session_state.responses.update({
+    "predictive-aiding": threshold_1,
+    })
+
     # --- Slider 2 (1-100 scale) ---
     st.write("**Case 2: Mid-Range Metric (Danger = 100)**")
     threshold_2 = st.slider(
@@ -1383,6 +1387,10 @@ def create_predictive_aiding_questions():
         help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
     )
 
+    st.session_state.responses.update({
+    "predictive-aiding": threshold_2,
+    })
+
     # --- Slider 3 (1-1000 scale) ---
     st.write("**Case 3: High-Range Metric (Danger = 1000)**")
     threshold_3 = st.slider(
@@ -1393,6 +1401,10 @@ def create_predictive_aiding_questions():
         key="predictive_3",
         help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
     )
+
+    st.session_state.responses.update({
+    "predictive-aiding": threshold_3,
+    })
     
 def create_memory_replacement_visualization():
     st.subheader("20. Replace Memory with Visual Information")

@@ -1373,7 +1373,7 @@ def create_predictive_aiding_questions():
     )
 
     st.session_state.responses.update({
-    "predictive-aiding": threshold_1,
+    "predictive-aiding_1": threshold_1,
     })
 
     # --- Slider 2 (1-100 scale) ---
@@ -1388,7 +1388,7 @@ def create_predictive_aiding_questions():
     )
 
     st.session_state.responses.update({
-    "predictive-aiding": threshold_2,
+    "predictive-aiding_2": threshold_2,
     })
 
     # --- Slider 3 (1-1000 scale) ---
@@ -1403,7 +1403,7 @@ def create_predictive_aiding_questions():
     )
 
     st.session_state.responses.update({
-    "predictive-aiding": threshold_3,
+    "predictive-aiding_3": threshold_3,
     })
     
 def create_memory_replacement_visualization():

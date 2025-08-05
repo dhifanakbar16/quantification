@@ -290,10 +290,10 @@ def create_experience_visualization():
     MIN_NOISE = 0     # Minimum noise at slider=100 (fully clear)
     
     experience_value = st.slider(
-        "Adjust the slider until you recognize the image:",
+        "Adjust the slider until you can recognize the primary flight display:",
         min_value=1,
         max_value=100,
-        value=50,
+        value=1,
         key="gestalt_experience_slider",
         help="Slide right to reduce noise. Stop when you recognize what it depicts."
     )
@@ -338,12 +338,12 @@ def create_pragnanz_visualization():
     """)
     
     pragnanz_value = st.slider(
-        "Adjust the slider until the shape reaches the simplest form that clearly represents an engine:",
+        "Adjust the slider until the shape reaches the simplest form that represents a turbine engine:",
         min_value=1,
         max_value=10,
-        value=5,
+        value=1,
         key="gestalt_pragnanz_slider",
-        help="Slide to make the shape more detailed. Stop when the shape reaches the simplest form that clearly represents an engine."
+        help="Slide to make the shape more detailed. Stop when the shape reaches the simplest form that represents a turbine engine."
     )
     
     # Create figure
@@ -486,7 +486,7 @@ def create_symmetry_visualization():
         "Adjust until petals appear symmetrical:",
         min_value=1, 
         max_value=100, 
-        value=50,
+        value=1,
         key="gestalt_symmetry_slider",
         help="Slide to change the position of the petals. Stop when the petals appears to be symmetrical."
     )
@@ -1412,6 +1412,7 @@ def create_memory_replacement_visualization():
     **Instructions:**  
     1. Click **Show Engine Display** to view an engine schematic for 9 seconds.  
     2. After it disappears, recall and enter as many details as possible.  
+    3. The image may change brightness, please try to ignore it.
     """)
 
     # Load engine display image
@@ -1832,7 +1833,7 @@ def flatten_dict(d, parent_key='', sep='_'):
 
 def main():
     # Survey Header
-    st.title("Expert Survey: Quantifying Design Principles on Electronic Flight Instrument System")
+    st.title("Expert Survey: Quantifying Design Principles on Electronic Instrument System")
     st.markdown("""
     Dear respondents,
 
@@ -1992,3 +1993,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

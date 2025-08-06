@@ -1835,7 +1835,6 @@ def main():
         create_moving_parts_visualization()
         create_access_cost_visualization()
         create_proximity_compatibility_questions()
-        create_multiple_resources_questions()
         create_predictive_aiding_questions()
         create_memory_replacement_visualization()
         create_consistency_questions()
@@ -1882,6 +1881,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

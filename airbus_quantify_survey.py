@@ -1239,8 +1239,8 @@ def create_proximity_compatibility_questions():
         "proximity_ratings": ratings,
     })
 
-def create_reaction_time_questions():
-    st.subheader("18. Reaction Time Assessment")
+def create_predictive_aiding_questions():
+    st.subheader("18. Predictive Aiding")
     st.markdown("""
     **Instructions:**  
     - Adjust each slider to estimate your typical reaction time in different scenarios.  
@@ -1881,6 +1881,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

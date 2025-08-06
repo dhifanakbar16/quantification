@@ -1246,6 +1246,7 @@ def create_predictive_aiding_questions():
     - Adjust each slider to estimate your typical reaction time in different scenarios.  
     - The scales represent seconds (s).  
     - Higher values indicate longer reaction times.  
+    - The last question will ask about your warning threshold.
     """)
 
     # --- Slider 1: Visual Perception to Reaction ---
@@ -1881,6 +1882,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

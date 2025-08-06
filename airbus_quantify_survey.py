@@ -1112,8 +1112,9 @@ def create_moving_parts_visualization():
     st.subheader("15. Moving Parts")
     st.markdown("""
     **Instructions:**
-    - Play the animation as more circles start moving.
-    - Select the point where you think that there are too many moving elements.
+    - Imagine different elements moving at the same time.
+    - These different elements also present multiple different information.
+    - Select the point where you think you can no longer perceive the information accurately because there are too many moving elements.
     """)
 
     # User selects when tracking becomes difficult
@@ -1123,51 +1124,8 @@ def create_moving_parts_visualization():
         max_value=10, 
         value=5,
         key="moving_parts_threshold",
-        help="Adjust your answer on the slider. Stop when you feel the animation becomes hard to follow"
+        help="Adjust your answer on the slider."
     )
-
-    # Animation setup
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.set_xlim(0, 11)
-    ax.set_ylim(-0.5, 1.5)
-    ax.axis('off')
-    
-    n_circles = 10
-    circles = []
-    for i in range(n_circles):
-        circle = plt.Circle((i+1, 0.5), 0.4, color='blue', alpha=0.7)
-        ax.add_patch(circle)
-        circles.append(circle)
-        ax.text(i+1, 0.5, str(i+1), ha='center', va='center', color='white')
-
-    # Animation update function
-    def update(frame):
-        current_moving = (frame // 20) % 10 + 1  # Cycles 1-10 every 2 sec (20 frames * 0.1s)
-        
-        for i, circle in enumerate(circles):
-            if i < current_moving:
-                # Animate moving up and down
-                y_pos = 0.5 + 0.3 * np.sin(frame * 0.2 + i * 0.5)
-                circle.set_center((i+1, y_pos))
-                circle.set_alpha(0.7)
-            else:
-                circle.set_center((i+1, 0.5))
-                circle.set_alpha(0.2)
-        
-        ax.set_title(f"{current_moving} Moving Circles", fontsize=12)
-        return circles
-
-    st.write(f"Current moving parts threshold: {difficulty_threshold} moving circles")
-
-    # Create animation (simulated for Streamlit)
-    # Note: Streamlit doesn't support FuncAnimation natively, so we simulate frames
-    if st.button("Play Animation"):
-        placeholder = st.empty()
-        for frame in range(200):  # 200 frames (~20 sec loop)
-            current_moving = (frame // 20) % 10 + 1
-            update(frame)
-            placeholder.pyplot(fig, clear_figure=False)
-            time.sleep(0.1)
 
     # Store metrics
     st.session_state.responses.update({
@@ -1221,7 +1179,8 @@ def create_access_cost_visualization():
                 f"Assign to {zone_name.split(':')[0]}",
                 st.session_state.unassigned_elements + st.session_state.access_cost_zones[zone_name],
                 default=st.session_state.access_cost_zones.get(zone_name, []),
-                key=f"zone_{i}"
+                key=f"zone_{i}",
+                help="Assign each element to its respective zone. Please be patient, as the website may take twice to update."
             )
             st.session_state.access_cost_zones[zone_name] = zone_selection
 
@@ -1280,134 +1239,62 @@ def create_proximity_compatibility_questions():
         "proximity_ratings": ratings,
     })
 
-def create_multiple_resources_questions():
-    st.subheader("18. Multiple Resources")
+def create_reaction_time_questions():
+    st.subheader("18. Reaction Time Assessment")
     st.markdown("""
     **Instructions:**  
-    - For each task, select which resource channels are used.  
-    - Leave unselected if a channel isn't used.  
+    - Adjust each slider to estimate your typical reaction time in different scenarios.  
+    - The scales represent seconds (s).  
+    - Higher values indicate longer reaction times.  
     """)
 
-    # Define tasks
-    tasks = {
-        "Monitor Engine RPM": "Visual gauge + Audio alert if exceeding threshold",
-        "Adjust Thrust Setting": "Manual lever control + Voice command confirmation",
-        "Respond to ATC Instructions": "Auditory message + Vocal response + Visual checklist",
-        "Navigate with Map": "Visual map + Haptic feedback when off-course",
-        "Handle Hydraulic Failure": "Visual warning + Audio alarm + Manual switch override"
-    }
-
-    # Resource channel options
-    channels = {
-        "Perceptual": ["Visual", "Auditory", "Haptic"],
-        "Cognitive": ["Perception", "Working Memory", "Decision Making"],
-        "Response": ["Manual", "Vocal", "None"]
-    }
-
-    # --- Task Evaluation ---
-    allocations = {}
-    for task, description in tasks.items():
-        st.markdown(f"**Task:** {task}  \n*{description}*")
-
-        cols = st.columns(3)
-        selected_channels = []
-        
-        # Perceptual Channel
-        with cols[0]:
-            perceptual = st.multiselect(
-                "Perceptual:",
-                channels["Perceptual"],
-                default=[],
-                key=f"perceptual_{task}",
-                help="Perceptual: How easily users can detect and distinguish interface elements. Visual: Information perceived through sight, such as text, color, and layout. Auditory: Information conveyed through sound, like alerts or spoken cues. Haptic: Feedback delivered through touch, such as vibrations or force."
-            )
-            selected_channels.extend(perceptual)
-        
-        # Cognitive Channel
-        with cols[1]:
-            cognitive = st.multiselect(
-                "Cognitive:",
-                channels["Cognitive"],
-                default=[], 
-                key=f"cognitive_{task}",
-                help="Cognitive: Mental processes involved in understanding, processing, and responding to information. Perception: Interpreting sensory input to form a meaningful understanding of the environment. Working Memory: Short-term mental storage used to hold and manipulate information during tasks. Decision Making: The cognitive process of selecting a course of action among multiple options."
-            )
-            selected_channels.extend(cognitive)
-        
-        # Response Channel
-        with cols[2]:
-            response = st.multiselect(
-                "Response:",
-                channels["Response"],
-                default=[],
-                key=f"response_{task}",
-                help="Response: The user's action following perception and decision, completing the interaction loop. Manual: Physical responses involving hands or fingers, such as pressing buttons or using controls. Vocal: Spoken responses or commands given by the user. None: No active response required from the user; the system proceeds automatically or passively."
-            )
-            selected_channels.extend(response)
-        
-        allocations[task] = selected_channels
-
-    # Store results
-    st.session_state.responses.update({
-        "resource_allocations": allocations,
-    })
-
-def create_predictive_aiding_questions():
-    st.subheader("19. Predictive Aiding")
-    st.markdown("""
-    **Instructions:**  
-    - Adjust each slider to set your preferred warning threshold.  
-    - Warnings should trigger when the value crosses your selected threshold.  
-    - Danger zones are fixed at max values (10, 100, 1000).  
-    """)
-
-    # --- Slider 1 (1-10 scale) ---
-    st.write("**Case 1: Low-Range Metric (Danger = 10)**")
-    threshold_1 = st.slider(
-        "Adjust until it has reached an appropriate value to trigger a warning:",
+    # --- Slider 1: Visual Perception to Reaction ---
+    st.write("**Case 1: Visual Perception to Reaction**")
+    reaction_1 = st.slider(
+        "How long do you need to perceive visual information (e.g., traffic) before reacting?",
         min_value=1,
         max_value=10,
         value=5,
-        key="predictive_1",
-        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+        key="reaction_1",
+        help="Adjust your answer."
     )
 
     st.session_state.responses.update({
-    "predictive-aiding_1": threshold_1,
+        "reaction_time_visual": reaction_1,
     })
 
-    # --- Slider 2 (1-100 scale) ---
-    st.write("**Case 2: Mid-Range Metric (Danger = 100)**")
-    threshold_2 = st.slider(
-        "Adjust until it has reached an appropriate value to trigger a warning:",
+    # --- Slider 2: Warning to Action ---
+    st.write("**Case 2: Warning to Action Delay**")
+    reaction_2 = st.slider(
+        "How long do you need between perceiving the warning (including processing the warning) and taking action?",
         min_value=1,
         max_value=100,
         value=50,
-        key="predictive_2",
-        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+        key="reaction_2",
+        help="Includes cognitive processing and physical response time."
     )
 
     st.session_state.responses.update({
-    "predictive-aiding_2": threshold_2,
+        "reaction_time_warning": reaction_2,
     })
 
-    # --- Slider 3 (1-1000 scale) ---
-    st.write("**Case 3: High-Range Metric (Danger = 1000)**")
-    threshold_3 = st.slider(
-        "Adjust until it has reached an appropriate value to trigger a warning:",
-        min_value=1,
-        max_value=1000,
-        value=500,
-        key="predictive_3",
-        help="Slide to adjust your answer. Stop when you feel like it's the right value to issue a warning."
+    # --- Slider 3: Action Completion ---
+    st.write("**Warning Range**")
+    reaction_3 = st.slider(
+        "Adjust the slider to set your preffered warning threshold in displays (for general case). Warnings should trigger when the value corsses your selected threshold. Danger zones are fixed at max value (100).",
+        min_value=50,
+        max_value=1500,
+        value=200,
+        key="reaction_3",
+        help="Adjust until it has reached an appropriate value to trigger a warning."
     )
 
     st.session_state.responses.update({
-    "predictive-aiding_3": threshold_3,
+        "reaction_time_action": reaction_3,
     })
     
 def create_memory_replacement_visualization():
-    st.subheader("20. Replace Memory with Visual Information")
+    st.subheader("19. Replace Memory with Visual Information")
     st.markdown("""
     **Instructions:**  
     1. Click **Show Engine Display** to view an engine schematic for 9 seconds.  
@@ -1446,7 +1333,7 @@ def create_memory_replacement_visualization():
     # --- Recall Phase ---
     if "memory_test_end_time" in st.session_state and time.time() > st.session_state.memory_test_end_time:
         recalled = st.text_area(
-            "List all details you remember, it can be as simple as descriptions of shapes and words (example: circles, a line, N1, and so on), or you can also write down the exact element that you saw (example: engine rpm, fuel flow, and so on):",
+            "List all details you remember, it can be as simple as descriptions of shapes and words (example: circles, a line, N1, and so on), or you can also write down the exact element or values that you saw (example: engine rpm, fuel flow, and so on):",
             height=200,
             key="memory_recall"
         )
@@ -1458,7 +1345,7 @@ def create_memory_replacement_visualization():
     })
 
 def create_consistency_questions():
-    st.subheader("21. Consistency")
+    st.subheader("20. Consistency")
     st.markdown("""
     **Instructions:**  
     - Compare pairs of elements below.  
@@ -1492,7 +1379,7 @@ def create_consistency_questions():
     })
 
 def create_frequency_of_use_questions():
-    st.subheader("22. Frequency of Use")
+    st.subheader("21. Frequency of Use")
     st.markdown("""
     **Instructions:**  
     - Assign each cockpit element to its usage frequency category.  
@@ -1548,7 +1435,7 @@ def create_frequency_of_use_questions():
     })
 
 def create_sequence_of_use_questions():
-    st.subheader("23. Sequence of Use")
+    st.subheader("22. Sequence of Use")
     st.markdown("""
     **Instructions:**  
     1. Click "Show Cockpit Display" to reveal the image.  
@@ -1627,7 +1514,7 @@ def create_sequence_of_use_questions():
         })
 
 def create_importance_allocation_questions():
-    st.subheader("24. Importance")
+    st.subheader("23. Importance")
     st.markdown("""
     **Instructions:**  
     - Allocate percentage values to determine the ideal size for each element.  
@@ -1684,7 +1571,7 @@ def create_importance_allocation_questions():
     })
 
 def create_visibility_questions():
-    st.subheader("25. Visibility")
+    st.subheader("24. Visibility")
     st.markdown("""
     **Instructions:**  
     - Rate the visibility of each element under different conditions (1 = Invisible, 5 = Perfectly Visible).  
@@ -1764,7 +1651,7 @@ def create_visibility_questions():
     })
 
 def create_reachability_questions():
-    st.subheader("26. Reachability")
+    st.subheader("25. Reachability")
     st.markdown("""
     **Instructions:**  
     - Please ensure your seating position is comfortable before answering  
@@ -1995,5 +1882,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 

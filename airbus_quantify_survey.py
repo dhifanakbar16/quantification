@@ -1119,7 +1119,7 @@ def create_moving_parts_visualization():
 
     # User selects when tracking becomes difficult
     difficulty_threshold = st.slider(
-        "Adjust until the number of moving circles becomes overwhelming to see:",
+        "Adjust until the number of moving elements becomes overwhelming to see:",
         min_value=1, 
         max_value=10, 
         value=5,
@@ -1882,6 +1882,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

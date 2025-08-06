@@ -1283,9 +1283,9 @@ def create_predictive_aiding_questions():
     st.write("**Warning Range**")
     reaction_3 = st.slider(
         "Adjust the slider to set your preffered warning threshold in displays (for general case). Warnings should trigger when the value corsses your selected threshold. Danger zones are fixed at max value (100).",
-        min_value=50,
-        max_value=1500,
-        value=200,
+        min_value=1,
+        max_value=100,
+        value=50,
         key="reaction_3",
         help="Adjust until it has reached an appropriate value to trigger a warning."
     )
@@ -1882,6 +1882,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
